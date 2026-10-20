@@ -1,0 +1,22 @@
+---
+import Base from "../../layouts/Base.astro";
+import PostCard from "../../components/PostCard.astro";
+import { getPosts, slugify, url, type Post } from "../../lib/site";
+import { CATEGORIES } from "../../content.config";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return CATEGORIES.map((c) => ({ params: { slug: slugify(c) }, props: { category: c, posts: posts.filter((p) => p.data.category === c) } }));
+}
+const { category, posts } = Astro.props as { category: string; posts: Post[] };
+---
+<Base title={category} description={`${category} deep-dives from ${posts.length} stories.`}>
+  <div class="container">
+    <section class="hero">
+      <a class="eyebrow" href={url("/")}>← All stories</a>
+      <h1>{category}</h1>
+      <p>{posts.length} {posts.length === 1 ? "story" : "stories"}, newest first.</p>
+    </section>
+    {posts.length === 0 ? <div class="empty">Nothing here yet.</div> : <div class="grid" style="margin-top:20px">{posts.map((p) => <PostCard post={p} />)}</div>}
+  </div>
+</Base>

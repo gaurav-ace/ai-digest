@@ -1,0 +1,13 @@
+---
+import { SITE, url } from "../lib/site";
+---
+<footer class="site-footer">
+  <div class="container row">
+    <div>© {new Date().getUTCFullYear()} {SITE.name} · AI-assisted analysis with links to every original source.</div>
+    <nav aria-label="Footer">
+      <a href={url("/archive/")}>Archive</a>
+      <a href={url("/about/")}>How it works</a>
+      <a href={url("/rss.xml")}>RSS</a>
+    </nav>
+  </div>
+</footer>

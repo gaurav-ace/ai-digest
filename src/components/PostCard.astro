@@ -1,0 +1,36 @@
+---
+import type { Post } from "../lib/site";
+import { url, readingMinutes, inlineMd } from "../lib/site";
+import CategoryBadge from "./CategoryBadge.astro";
+import Signal from "./Signal.astro";
+
+interface Props { post: Post; featured?: boolean }
+const { post, featured = false } = Astro.props;
+const { title, summary, category, importance, source, takeaways } = post.data;
+const href = url(`/posts/${post.id}/`);
+---
+<article class:list={["card", { featured }]} data-category={category}>
+  {featured ? (
+    <>
+      <div class="featured-main">
+        <div class="card-top"><CategoryBadge category={category} /><Signal level={importance} /></div>
+        <h3><a href={href}>{title}</a></h3>
+        <p>{summary}</p>
+        <div class="meta"><span>{source.name}</span><span class="sep" /><span>{readingMinutes(post.body)} min read</span></div>
+      </div>
+      {takeaways.length > 0 && (
+        <div class="featured-side">
+          <h4>Key takeaways</h4>
+          <ul>{takeaways.slice(0, 3).map((t) => <li set:html={inlineMd(t)} />)}</ul>
+        </div>
+      )}
+    </>
+  ) : (
+    <>
+      <div class="card-top"><CategoryBadge category={category} /><Signal level={importance} /></div>
+      <h3><a href={href}>{title}</a></h3>
+      <p>{summary}</p>
+      <div class="meta"><span>{source.name}</span><span class="sep" /><span>{readingMinutes(post.body)} min read</span></div>
+    </>
+  )}
+</article>

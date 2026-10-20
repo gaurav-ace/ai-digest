@@ -1,0 +1,168 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import CategoryBadge from "../../components/CategoryBadge.astro";
+import Signal from "../../components/Signal.astro";
+import { getPosts, url, formatDate, readingMinutes, slugify, inlineMd, type Post } from "../../lib/site";
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  return posts.map((post, i) => ({
+    params: { slug: post.id },
+    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+  }));
+}
+
+const { post, newer, older } = Astro.props as { post: Post; newer?: Post; older?: Post };
+const { Content, headings } = await render(post);
+const d = post.data;
+const toc = headings.filter((h) => h.depth === 2);
+---
+<Base title={d.title} description={d.summary} type="article">
+  <div class="progress" aria-hidden="true"></div>
+  <div class="container">
+    <div class="article-wrap">
+      <article>
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href={url("/")}>Today</a><span aria-hidden="true">/</span>
+          <a href={url(`/category/${slugify(d.category)}/`)}>{d.category}</a>
+        </nav>
+        <header class="article-head">
+          <div class="card-top" style="justify-content:flex-start;gap:12px"><CategoryBadge category={d.category} /><Signal level={d.importance} /></div>
+          <h1>{d.title}</h1>
+          <p class="lede">{d.summary}</p>
+          <div class="meta">
+            <time datetime={d.date.toISOString()}>{formatDate(d.date, { month: "long", day: "numeric", year: "numeric" })}</time>
+            <span class="sep" /><span>{readingMinutes(post.body)} min read</span>
+            <span class="sep" /><span>via <a href={d.source.url} rel="noopener" target="_blank" style="text-decoration:underline;text-underline-offset:3px">{d.source.name}</a></span>
+          </div>
+        </header>
+
+        {d.takeaways.length > 0 && (
+          <section class="takeaways" aria-labelledby="kt">
+            <h2 id="kt">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+              Key takeaways
+            </h2>
+            <ol>{d.takeaways.map((t) => <li set:html={inlineMd(t)} />)}</ol>
+          </section>
+        )}
+
+        <div class="prose"><Content /></div>
+
+        <aside class="source-card">
+          <div>
+            <div class="label">Original source · {d.source.name}</div>
+            <div class="title">{d.source.title ?? d.title}</div>
+          </div>
+          <a class="btn primary" href={d.source.url} target="_blank" rel="noopener">Read the original ↗</a>
+        </aside>
+        <p class="note">
+          {d.sample
+            ? "This is a sample post that shows the format. Daily posts are generated from the source above."
+            : "This analysis was written with AI assistance from the original source. Always check the original for critical decisions."}
+        </p>
+
+        {d.tags.length > 0 && <div class="tags">{d.tags.map((t) => <span class="tag">#{t}</span>)}</div>}
+
+        <nav class="pager" aria-label="More posts">
+          {older ? <a href={url(`/posts/${older.id}/`)}><div class="dir">← Older</div><div class="t">{older.data.title}</div></a> : <span />}
+          {newer && <a class="next" href={url(`/posts/${newer.id}/`)}><div class="dir">Newer →</div><div class="t">{newer.data.title}</div></a>}
+        </nav>
+      </article>
+
+      {toc.length > 0 && (
+        <aside class="toc" aria-label="On this page">
+          <h2>On this page</h2>
+          <ol>{toc.map((h) => <li><a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a></li>)}</ol>
+        </aside>
+      )}
+    </div>
+  </div>
+</Base>
+
+<script>
+  // Reading progress + active TOC section
+  const bar = document.querySelector<HTMLElement>(".progress");
+  const onScroll = () => {
+    const h = document.documentElement;
+    const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+    if (bar) bar.style.transform = `scaleX(${p})`;
+  };
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  const links = new Map([...document.querySelectorAll<HTMLAnchorElement>("[data-toc]")].map((a) => [a.dataset.toc, a]));
+  if (links.size) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => a.classList.remove("active"));
+          links.get(e.target.id)?.classList.add("active");
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px" },
+    );
+    document.querySelectorAll(".prose h2[id]").forEach((h) => io.observe(h));
+  }
+
+  // Mermaid diagrams: loaded only on pages that contain them.
+  const blocks = [...document.querySelectorAll<HTMLElement>('.prose pre[data-language="mermaid"], .prose pre > code.language-mermaid')]
+    .map((el) => (el.tagName === "PRE" ? el : el.parentElement!) as HTMLElement);
+  if (blocks.length) {
+    const sources = blocks.map((pre) => pre.textContent ?? "");
+    const holders = blocks.map((pre) => {
+      const fig = document.createElement("figure");
+      fig.className = "diagram";
+      fig.innerHTML = '<span class="diagram-label">Diagram</span><div></div>';
+      pre.replaceWith(fig);
+      return fig.lastElementChild as HTMLElement;
+    });
+    const draw = async () => {
+      // @ts-ignore — remote ESM module
+      const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs");
+      // Theme diagrams from the page's own CSS tokens so they match light/dark mode.
+      const css = getComputedStyle(document.documentElement);
+      const v = (name: string) => css.getPropertyValue(name).trim();
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        fontFamily: "Inter, system-ui, sans-serif",
+        themeVariables: {
+          darkMode: document.documentElement.dataset.theme === "dark",
+          background: v("--bg-elev"),
+          primaryColor: v("--accent-soft"),
+          primaryBorderColor: v("--accent"),
+          primaryTextColor: v("--text"),
+          secondaryColor: v("--bg-sunken"),
+          tertiaryColor: v("--bg-sunken"),
+          lineColor: v("--text-3"),
+          textColor: v("--text"),
+          actorBkg: v("--accent-soft"),
+          actorBorder: v("--accent"),
+          actorTextColor: v("--text"),
+          signalColor: v("--text-2"),
+          signalTextColor: v("--text"),
+          noteBkgColor: v("--bg-sunken"),
+          noteTextColor: v("--text"),
+        },
+      });
+      for (const [i, src] of sources.entries()) {
+        try {
+          const { svg } = await mermaid.render(`mmd-${i}-${Date.now()}`, src);
+          holders[i].innerHTML = svg;
+          // Keep natural size (readable on phones); the .diagram card scrolls horizontally if needed.
+          const el = holders[i].querySelector("svg");
+          const w = el && parseFloat(el.style.maxWidth);
+          if (el && w) Object.assign(el.style, { width: `${w}px`, maxWidth: "none" });
+        } catch {
+          holders[i].innerHTML = `<pre style="text-align:left">${src.replace(/</g, "&lt;")}</pre>`;
+        }
+      }
+    };
+    draw();
+    document.addEventListener("themechange", draw);
+  }
+</script>

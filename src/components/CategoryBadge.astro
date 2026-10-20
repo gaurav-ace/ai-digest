@@ -1,0 +1,5 @@
+---
+import { CATEGORY_TONE } from "../lib/site";
+const { category } = Astro.props as { category: string };
+---
+<span class={`badge tone-${CATEGORY_TONE[category] ?? "indigo"}`}>{category}</span>

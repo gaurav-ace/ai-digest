@@ -1,0 +1,8 @@
+{
+  "$comment": "Pipeline tuning. lookbackHours: how far back to scan. maxPostsPerDay: deep-dives written per run. model: Claude Code model alias ('sonnet', 'opus', 'haiku') or full model id. Each post uses a share of your Claude plan's usage limits.",
+  "lookbackHours": 36,
+  "maxCandidates": 90,
+  "maxPostsPerDay": 4,
+  "minImportance": 3,
+  "model": "sonnet"
+}

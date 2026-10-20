@@ -1,0 +1,71 @@
+---
+import Base from "../layouts/Base.astro";
+import PostCard from "../components/PostCard.astro";
+import { getPosts, groupByDay, formatDate, url } from "../lib/site";
+import { CATEGORIES } from "../content.config";
+
+const posts = await getPosts();
+const days = groupByDay(posts).slice(0, 10);
+const latest = days[0]?.[0];
+const usedCategories = CATEGORIES.filter((c) => posts.some((p) => p.data.category === c));
+const dayLabel = (k: string, i: number) =>
+  i === 0 ? `Latest · ${formatDate(new Date(k), { weekday: "long", month: "long", day: "numeric" })}` : formatDate(new Date(k), { weekday: "long", month: "long", day: "numeric" });
+---
+<Base>
+  <div class="container">
+    <section class="hero">
+      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>
+        {latest ? `Updated ${formatDate(new Date(latest), { month: "short", day: "numeric" })}` : "Daily digest"}
+      </span>
+      <h1>AI &amp; system design,<br /><span class="grad">explained daily.</span></h1>
+      <p>Every morning we scan trusted engineering blogs and AI labs, pick what actually matters, and break it down into clear, practical deep-dives.</p>
+    </section>
+
+    {usedCategories.length > 1 && (
+      <div class="filters" role="toolbar" aria-label="Filter by category">
+        <button class="chip" type="button" aria-pressed="true" data-filter="all">All</button>
+        {usedCategories.map((c) => <button class="chip" type="button" aria-pressed="false" data-filter={c}>{c}</button>)}
+      </div>
+    )}
+
+    {days.length === 0 && <div class="empty">No posts yet. The first digest will appear after the next daily run.</div>}
+
+    {days.map(([key, items], i) => (
+      <section class="day" data-day>
+        <div class="day-head">
+          <h2>{dayLabel(key, i)}</h2><span class="rule" aria-hidden="true"></span>
+          <span class="count">{items.length} {items.length === 1 ? "story" : "stories"}</span>
+        </div>
+        <div class="grid">
+          {items.map((p, j) => <PostCard post={p} featured={i === 0 && j === 0} />)}
+        </div>
+      </section>
+    ))}
+
+    <div class="empty" id="filter-empty" hidden>No recent stories in this category. Try the <a href={url("/archive/")}>archive</a>.</div>
+
+    {posts.length > 0 && (
+      <div class="more"><a class="btn" href={url("/archive/")}>Browse the full archive →</a></div>
+    )}
+  </div>
+</Base>
+
+<script>
+  const chips = [...document.querySelectorAll<HTMLButtonElement>(".chip[data-filter]")];
+  const apply = (f: string) => {
+    chips.forEach((c) => c.setAttribute("aria-pressed", String(c.dataset.filter === f)));
+    let any = false;
+    document.querySelectorAll<HTMLElement>("[data-day]").forEach((day) => {
+      let visible = 0;
+      day.querySelectorAll<HTMLElement>(".card").forEach((card) => {
+        const show = f === "all" || card.dataset.category === f;
+        card.hidden = !show;
+        if (show) visible++;
+      });
+      day.hidden = visible === 0;
+      if (visible) any = true;
+    });
+    document.getElementById("filter-empty")!.hidden = any;
+  };
+  chips.forEach((c) => c.addEventListener("click", () => apply(c.dataset.filter!)));
+</script>

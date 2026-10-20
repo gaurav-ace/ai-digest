@@ -1,0 +1,8 @@
+---
+// Importance 1–5 shown as a 4-bar signal meter (5 lights all bars).
+const { level } = Astro.props as { level: number };
+const on = Math.min(4, Math.max(1, level - 1));
+---
+<span class="signal" role="img" aria-label={`Importance ${level} of 5`} title={`Importance ${level}/5`}>
+  {[0, 1, 2, 3].map((i) => <i class={i < on ? "on" : ""} />)}
+</span>

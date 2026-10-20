@@ -1,0 +1,107 @@
+name: Daily digest
+
+on:
+  schedule:
+    - cron: "30 6 * * *" # 06:30 UTC every day
+  workflow_dispatch: # "Run workflow" button for manual runs
+  push:
+    branches: [main] # redeploy on manual edits (no generation)
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily-digest
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+
+      - name: Install Claude Code
+        if: github.event_name != 'push'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Scan sources and write deep-dives
+        if: github.event_name != 'push'
+        env:
+          # From `claude setup-token` — uses your Claude Pro/Max subscription, no API key needed.
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: npm run digest
+
+      - name: Commit new posts
+        if: github.event_name != 'push'
+        run: |
+          git config user.name "digest-bot"
+          git config user.email "digest-bot@users.noreply.github.com"
+          git add src/content/posts data
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+          else
+            git commit -m "digest: $(date -u +%F)"
+            git push
+          fi
+
+      - id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build site
+        env:
+          SITE_ORIGIN: ${{ steps.pages.outputs.origin }}
+          BASE_PATH: ${{ steps.pages.outputs.base_path || '/' }}
+        run: npm run build
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+      - name: Keep digest summary for the Discord step
+        if: github.event_name != 'push'
+        uses: actions/upload-artifact@v4
+        with:
+          name: latest-digest
+          path: data/latest-digest.json
+          if-no-files-found: ignore
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  notify:
+    # Runs after deploy so the links in Discord already work.
+    needs: deploy
+    if: github.event_name != 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: latest-digest
+          path: data
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Post summary to Discord
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          SITE_URL: ${{ needs.deploy.outputs.page_url }}
+        run: npm run notify

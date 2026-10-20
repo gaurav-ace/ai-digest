@@ -1,0 +1,24 @@
+---
+import Base from "../layouts/Base.astro";
+import sourcesFile from "../../config/sources.json";
+const sources = sourcesFile.sources;
+---
+<Base title="How it works" description="How The Signal finds, picks and explains each story.">
+  <div class="container">
+    <div class="page prose">
+      <h1>How it works</h1>
+      <p>The Signal is a daily digest for engineers who want to keep up with AI and system design without reading fifty blogs. Each day:</p>
+      <ol class="steps">
+        <li><strong>Scan.</strong> We pull the latest posts from the trusted sources below, including AI labs, research groups and the engineering blogs of companies running systems at scale.</li>
+        <li><strong>Pick.</strong> An AI editor ranks the new items by technical substance. It skips marketing, hiring posts and duplicates, and keeps only the few stories worth your time.</li>
+        <li><strong>Explain.</strong> For each pick, the full original is read and turned into a structured deep-dive: what happened, why it matters, how it works (with diagrams), trade-offs and what you can apply.</li>
+        <li><strong>Deliver.</strong> New posts appear here and a short summary goes to our Discord channel.</li>
+      </ol>
+      <p>Every post links to its original source. The analysis is AI-assisted, so check the original before relying on it for anything critical.</p>
+      <h2>Sources</h2>
+      <ul class="source-list">
+        {sources.map((s) => <li><span class="k">{s.kind === "ai" ? "AI" : "Systems"}</span>{s.name}</li>)}
+      </ul>
+    </div>
+  </div>
+</Base>

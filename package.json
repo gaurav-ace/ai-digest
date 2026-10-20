@@ -1,0 +1,21 @@
+{
+  "name": "ai-sys-design-digest",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "digest": "node scripts/digest.mjs",
+    "digest:dry": "node scripts/digest.mjs --dry-run",
+    "feeds:check": "node scripts/check-feeds.mjs",
+    "notify": "node scripts/notify-discord.mjs"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^5.18.2",
+    "rss-parser": "^3.13.0"
+  }
+}

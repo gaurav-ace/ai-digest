@@ -1,0 +1,32 @@
+---
+import Base from "../layouts/Base.astro";
+import { getPosts, url, formatDate } from "../lib/site";
+
+const posts = await getPosts();
+const months = new Map<string, typeof posts>();
+for (const p of posts) {
+  const k = formatDate(p.data.date, { month: "long", year: "numeric" });
+  months.set(k, [...(months.get(k) ?? []), p]);
+}
+---
+<Base title="Archive" description="Every deep-dive, by month.">
+  <div class="container">
+    <div class="page">
+      <h1>Archive</h1>
+      <p style="color:var(--text-2);margin:0">{posts.length} deep-dives so far.</p>
+      {[...months.entries()].map(([month, items]) => (
+        <section class="archive-month">
+          <h2>{month}</h2>
+          <ul class="archive-list">
+            {items.map((p) => (
+              <li><a href={url(`/posts/${p.id}/`)}>
+                <span class="d">{formatDate(p.data.date, { month: "short", day: "numeric" })}</span>
+                <span class="t">{p.data.title}<span class="s">{p.data.category} · {p.data.source.name}</span></span>
+              </a></li>
+            ))}
+          </ul>
+        </section>
+      ))}
+    </div>
+  </div>
+</Base>

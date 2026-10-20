@@ -1,0 +1,14 @@
+{
+  "date": "2026-10-20",
+  "posts": [
+    {
+      "slug": "2026-10-20-how-cloudflare-cut-its-ai-code-reviewers-inference-bill-by-68",
+      "title": "How Cloudflare cut its AI code reviewer's inference bill by 68%",
+      "summary": "Cloudflare's AI code reviewer saw cost per run double, so they analyzed token usage to find the cause. Prompt caching and intelligent model routing cut inference spend by 68% and made reviews faster.",
+      "category": "AI Engineering",
+      "importance": 3,
+      "source": "Cloudflare",
+      "sourceUrl": "https://blog.cloudflare.com/obsessive-inference-optimization/"
+    }
+  ]
+}
