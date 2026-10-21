@@ -3,7 +3,7 @@
 A static site that scans trusted AI and engineering sources every day, picks the stories that matter, and publishes clear deep-dive explainers. A summary of each day's posts goes to a Discord channel.
 
 ```
-GitHub Actions (daily cron, 06:30 UTC)
+GitHub Actions (daily, 06:45 IST / 01:15 UTC; Discord summary ~07:00 IST)
   └─ scripts/digest.mjs
        1. Scan    ~24 RSS feeds (config/sources.json), last 36h, skip already-seen URLs
        2. Rank    Claude picks up to 4 items with real technical substance (structured JSON)

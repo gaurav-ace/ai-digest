@@ -2,7 +2,9 @@ name: Daily digest
 
 on:
   schedule:
-    - cron: "30 6 * * *" # 06:30 UTC every day
+    # 01:15 UTC = 06:45 IST. A run takes ~5–10 min, so the Discord summary lands around 7:00 IST.
+    # (GitHub may start scheduled runs a few minutes late.)
+    - cron: "15 1 * * *"
   workflow_dispatch: # "Run workflow" button for manual runs
   push:
     branches: [main] # redeploy on manual edits (no generation)
