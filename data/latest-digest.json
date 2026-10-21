@@ -1,14 +1,14 @@
 {
-  "date": "2026-10-20",
+  "date": "2026-10-21",
   "posts": [
     {
-      "slug": "2026-10-20-how-cloudflare-cut-its-ai-code-reviewers-inference-bill-by-68",
-      "title": "How Cloudflare cut its AI code reviewer's inference bill by 68%",
-      "summary": "Cloudflare's AI code reviewer saw cost per run double, so they analyzed token usage to find the cause. Prompt caching and intelligent model routing cut inference spend by 68% and made reviews faster.",
-      "category": "AI Engineering",
-      "importance": 3,
+      "slug": "2026-10-21-cloudflare-responds-to-eight-compromised-emudhra-intermediate-ca-certi",
+      "title": "Cloudflare responds to eight compromised eMudhra intermediate CA certificates",
+      "summary": "Eight eMudhra intermediate certificates were found to use weak keys, undermining trust in certs chaining to major root programs. Cloudflare is deploying mitigations and client updates, and explains the impact and what customers and developers should do.",
+      "category": "Security",
+      "importance": 4,
       "source": "Cloudflare",
-      "sourceUrl": "https://blog.cloudflare.com/obsessive-inference-optimization/"
+      "sourceUrl": "https://blog.cloudflare.com/emudhra-certificate-compromise/"
     }
   ]
 }
