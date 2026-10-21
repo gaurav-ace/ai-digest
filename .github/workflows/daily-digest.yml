@@ -31,13 +31,17 @@ jobs:
 
       - name: Install Claude Code
         if: github.event_name != 'push'
-        run: npm install -g @anthropic-ai/claude-code
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+        run: |
+          if [ -n "$CLAUDE_CODE_OAUTH_TOKEN" ]; then npm install -g @anthropic-ai/claude-code; else echo "No Claude token: Gemini only"; fi
 
       - name: Scan sources and write deep-dives
         if: github.event_name != 'push'
         env:
-          # From `claude setup-token` — uses your Claude Pro/Max subscription, no API key needed.
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          # Either or both. Providers are tried in the order set in config/digest.json.
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }} # `claude setup-token` (Claude Pro/Max)
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # aistudio.google.com/apikey
         run: npm run digest
 
       - name: Commit new posts

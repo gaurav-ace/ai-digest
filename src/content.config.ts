@@ -19,6 +19,7 @@ const posts = defineCollection({
       published: z.string().optional(),
     }),
     takeaways: z.array(z.string()).default([]),
+    writer: z.string().optional(),
     sample: z.boolean().default(false),
   }),
 });

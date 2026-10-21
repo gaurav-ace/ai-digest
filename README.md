@@ -6,8 +6,9 @@ A static site that scans trusted AI and engineering sources every day, picks the
 GitHub Actions (daily, 06:45 IST / 01:15 UTC; Discord summary ~07:00 IST)
   └─ scripts/digest.mjs
        1. Scan    ~24 RSS feeds (config/sources.json), last 36h, skip already-seen URLs
-       2. Rank    Claude picks up to 4 items with real technical substance (structured JSON)
-       3. Write   Claude reads each full article (WebFetch) and writes a structured deep-dive
+       2. Rank    the AI picks up to 4 items with real technical substance (structured JSON)
+       3. Write   the AI reads each full article and writes a structured deep-dive
+                  (Claude first, Gemini as automatic backup; see "AI providers" below)
        4. Save    Markdown files go to src/content/posts/, committed to the repo
   └─ astro build → GitHub Pages
   └─ scripts/notify-discord.mjs → Discord webhook (runs after deploy, so links work)
@@ -18,7 +19,9 @@ GitHub Actions (daily, 06:45 IST / 01:15 UTC; Discord summary ~07:00 IST)
 1. **Push this folder to a new GitHub repo**, with `main` as the default branch.
 2. **Turn on Pages:** Settings → Pages → Source: **GitHub Actions**.
 3. **Add repository secrets** under Settings → Secrets and variables → Actions:
-   - `CLAUDE_CODE_OAUTH_TOKEN`: run `claude setup-token` on your machine and paste the token it prints. This uses your Claude Pro/Max subscription, so no API key is needed.
+   - `CLAUDE_CODE_OAUTH_TOKEN` (optional): run `claude setup-token` and paste the token as one line. This uses your Claude Pro/Max subscription.
+   - `GEMINI_API_KEY` (optional): from https://aistudio.google.com/apikey.
+   - At least one of the two is required. With both, Claude is used first and Gemini is the backup.
    - `DISCORD_WEBHOOK_URL`: in Discord, go to Channel settings → Integrations → Webhooks → New Webhook → Copy URL.
 4. **Run it once by hand:** Actions → *Daily digest* → **Run workflow**. After that it runs every day.
 
@@ -48,9 +51,20 @@ npm run digest         # real run with your logged-in Claude Code (add `-- --max
 
 The three `sample-*` posts in `src/content/posts/` show the format. Delete them once real posts arrive.
 
-## Notes
+## AI providers
 
-- **How Claude runs:** the pipeline calls the Claude Code CLI (`claude -p`), so it runs on your Claude subscription. Each run is one ranking call plus one writing session per post (about a minute each with Sonnet). This counts toward your plan's usage limits. If you hit them, lower `maxPostsPerDay`.
-- **Model:** the default is `sonnet`. You can set `"model": "opus"` in `config/digest.json` if your plan includes it.
+Set in `config/digest.json` → `"providers": ["claude", "gemini"]`. They are tried in order, and any provider without credentials is skipped. If a provider fails during a run (expired token, usage limit, outage), the rest of that run uses the next one. Each post records which model wrote it.
+
+| Provider | Credential | How it runs | Models (`config/digest.json`) |
+|---|---|---|---|
+| `claude` | `CLAUDE_CODE_OAUTH_TOKEN` (or your local `claude` login) | Claude Code CLI (`claude -p`) on your Pro/Max subscription, counts toward plan limits | `claude.model`: `sonnet` (or `opus`) |
+| `gemini` | `GEMINI_API_KEY` | Gemini API; the article text is fetched and passed in | `gemini-flash-latest` to rank, `gemini-pro-latest` to write, flash as fallback |
+
+- **Stop using Claude:** delete the `CLAUDE_CODE_OAUTH_TOKEN` secret. Nothing else changes.
+- **Make Gemini primary:** set `"providers": ["gemini", "claude"]`.
+- **One-off local run with a specific provider:** `LLM_PROVIDERS=gemini GEMINI_API_KEY=... npm run digest -- --max 1`.
+- On the Gemini free tier, Google may use your prompts to improve its products. That's fine for public blog posts, but worth knowing.
+
+## Notes
 - **Accuracy:** posts are AI-written from the original source and always link back to it. The writer is told not to invent numbers and to say when a source is thin. You can still review posts in the repo, and revert any commit.
 - **Dedupe:** `data/seen.json` tracks scanned URLs for 60 days, so stories aren't repeated.

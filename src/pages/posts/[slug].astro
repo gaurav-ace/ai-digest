@@ -60,7 +60,7 @@ const toc = headings.filter((h) => h.depth === 2);
         <p class="note">
           {d.sample
             ? "This is a sample post that shows the format. Daily posts are generated from the source above."
-            : "This analysis was written with AI assistance from the original source. Always check the original for critical decisions."}
+            : `This analysis was written with AI assistance${d.writer ? ` (${d.writer})` : ""} from the original source. Always check the original for critical decisions.`}
         </p>
 
         {d.tags.length > 0 && <div class="tags">{d.tags.map((t) => <span class="tag">#{t}</span>)}</div>}

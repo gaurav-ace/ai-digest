@@ -1,14 +1,16 @@
 // Daily scan → rank → deep-dive → markdown posts.
 //
-// Claude runs through the Claude Code CLI (`claude -p`), so it works with a Claude Pro/Max
-// subscription: locally after `claude` login, in CI via CLAUDE_CODE_OAUTH_TOKEN (`claude setup-token`).
+// LLM providers (see llm.mjs) are tried in the order set in config/digest.json:
+//   claude: Claude Code CLI on your Pro/Max subscription (CLAUDE_CODE_OAUTH_TOKEN in CI)
+//   gemini: Gemini API (GEMINI_API_KEY)
+// Override for one run with LLM_PROVIDERS=gemini (or "gemini,claude").
 //
 //   node scripts/digest.mjs            full run
 //   node scripts/digest.mjs --dry-run  scan feeds + print candidates, no Claude calls, no writes
 //   node scripts/digest.mjs --max 1    cap posts for this run
 import fs from "node:fs/promises";
 import path from "node:path";
-import { spawn } from "node:child_process";
+import { createLLM } from "./llm.mjs";
 import { ROOT, POSTS_DIR, SEEN_FILE, LATEST_FILE, readJson, writeJson, fetchFeed, slugify, todayISO } from "./lib.mjs";
 
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -18,36 +20,7 @@ if (maxArg !== -1) cfg.maxPostsPerDay = Number(process.argv[maxArg + 1]);
 const { sources } = await readJson(path.join(ROOT, "config/sources.json"), { sources: [] });
 const CATEGORIES = ["AI Research", "AI Engineering", "System Design", "Infrastructure", "Databases", "Security"];
 
-/** Run one headless Claude Code turn; resolves with the parsed `--output-format json` result. */
-function claude(prompt, args) {
-  return new Promise((resolve, reject) => {
-    const proc = spawn(
-      "claude",
-      ["-p", "--model", cfg.model, "--output-format", "json", "--no-session-persistence", "--strict-mcp-config", ...args],
-      { stdio: ["pipe", "pipe", "inherit"] },
-    );
-    let out = "";
-    proc.stdout.on("data", (d) => (out += d));
-    proc.on("error", reject);
-    proc.on("close", (code) => {
-      try {
-        const res = JSON.parse(out);
-        if (res.is_error || res.subtype !== "success") {
-          const msg = String(res.result ?? res.subtype);
-          const hint = /401|authenticat|bearer/i.test(msg)
-            ? " (check the CLAUDE_CODE_OAUTH_TOKEN secret: regenerate with `claude setup-token` and paste it as a single line)"
-            : "";
-          return reject(new Error(`Claude call failed: ${msg}${hint}`));
-        }
-        resolve(res);
-      } catch {
-        reject(new Error(`claude exited ${code}: ${out.slice(0, 500)}`));
-      }
-    });
-    proc.stdin.end(prompt); // prompt via stdin: no argv length limits
-  });
-}
-
+const llm = createLLM(cfg);
 // ---------------------------------------------------------------- 1. scan
 const seen = await readJson(SEEN_FILE, {});
 const cutoff = Date.now() - cfg.lookbackHours * 3600_000;
@@ -60,6 +33,7 @@ const candidates = results
   .sort((a, b) => b.weight - a.weight || b.published.localeCompare(a.published))
   .slice(0, cfg.maxCandidates);
 
+console.log(`[llm] providers: ${llm.providers.join(" -> ") || "none"}`);
 console.log(`[scan] ${candidates.length} fresh candidates from ${results.filter((r) => r.ok).length}/${sources.length} feeds`);
 if (DRY_RUN) {
   for (const c of candidates) console.log(`  - [${c.source}] ${c.title}\n    ${c.url}`);
@@ -108,13 +82,22 @@ const SELECT_SYSTEM =
   "event announcements, hiring posts, customer stories without engineering content, and near-duplicates " +
   "(if two items cover the same news, keep the more primary source).";
 
-const selection = await claude(
-  `Candidates published in the last ${cfg.lookbackHours} hours:\n\n${candidateList}\n\n` +
-    `Pick up to ${cfg.maxPostsPerDay} items, most important first. Only include items with importance >= ${cfg.minImportance}. ` +
-    `Returning fewer (or zero) picks is fine on a slow day.`,
-  ["--system-prompt", SELECT_SYSTEM, "--tools", "", "--json-schema", JSON.stringify(selectionSchema)],
+const selection = await llm.rank(
+  {
+    system: SELECT_SYSTEM,
+    schema: selectionSchema,
+    prompt:
+      `Candidates published in the last ${cfg.lookbackHours} hours:\n\n${candidateList}\n\n` +
+      `Pick up to ${cfg.maxPostsPerDay} items, most important first. Only include items with importance >= ${cfg.minImportance}. ` +
+      `Returning fewer (or zero) picks is fine on a slow day.`,
+  },
+  (out) => {
+    if (!Array.isArray(out?.picks)) throw new Error("ranking output has no picks array");
+    return out;
+  },
 );
-const picks = (selection.structured_output?.picks ?? [])
+console.log(`[rank] via ${selection.provider}`);
+const picks = selection.value.picks
   .filter((p) => candidates[p.index] && p.importance >= cfg.minImportance)
   .slice(0, cfg.maxPostsPerDay);
 console.log(`[rank] selected ${picks.length}: ${picks.map((p) => p.index).join(", ")}`);
@@ -122,7 +105,7 @@ console.log(`[rank] selected ${picks.length}: ${picks.map((p) => p.index).join("
 // ---------------------------------------------------------------- 3. deep-dive per pick
 const WRITER_SYSTEM = `You write deep-dive explainers for an engineering digest site. Readers are working software engineers, from mid-level to staff, who want to understand quickly and deeply.
 
-First use the WebFetch tool to read the original article in full. If it links to a paper or a key companion post that is essential, you may fetch that too. Base every factual claim on what you read; if the source is thin, say so instead of inventing detail. Never fabricate numbers, quotes or benchmarks.
+First read the original article in full: it is either included below or you fetch it with your web tool (if it links to a paper or key companion post that is essential, you may fetch that too). Base every factual claim on what you read; if the source is thin, say so instead of inventing detail. Never fabricate numbers, quotes or benchmarks.
 
 Then write the post body in GitHub-flavored Markdown using exactly these sections, in order:
 
@@ -150,22 +133,21 @@ A short bullet list of key terms with one-line definitions.
 Rules: Do not include a top-level # title, front matter, or a "Sources" section (the site adds those). Aim for a 6-10 minute read. Prefer short paragraphs, clear structure and concrete examples over hype. Output only the Markdown body, with no preamble before "## Key takeaways".`;
 
 async function writeDeepDive(item, pick) {
-  const res = await claude(
-    `Write the deep-dive for this item.\n\nSource: ${item.source}\nOriginal title: ${item.title}\nURL: ${item.url}\n` +
-      `Published: ${item.published}\nEditor's angle: ${pick.why}\nFeed snippet: ${item.snippet}`,
-    [
-      "--system-prompt", WRITER_SYSTEM,
-      "--tools", "WebFetch",
-      "--allowedTools", "WebFetch",
-      "--permission-mode", "dontAsk",
-      "--max-turns", "10",
-    ],
+  return llm.write(
+    {
+      system: WRITER_SYSTEM,
+      url: item.url,
+      prompt:
+        `Write the deep-dive for this item.\n\nSource: ${item.source}\nOriginal title: ${item.title}\nURL: ${item.url}\n` +
+        `Published: ${item.published}\nEditor's angle: ${pick.why}\nFeed snippet: ${item.snippet}`,
+    },
+    (md) => {
+      // Drop any preamble before the first section; reject output that ignored the structure.
+      const start = md.indexOf("## Key takeaways");
+      if (start === -1) throw new Error("writer output missing '## Key takeaways' section");
+      return md.slice(start).trim();
+    },
   );
-  // `result` is the final assistant message; drop any preamble before the first section.
-  const body = String(res.result ?? "").trim();
-  const start = body.indexOf("## Key takeaways");
-  if (start === -1) throw new Error("writer output missing '## Key takeaways' section");
-  return body.slice(start);
 }
 
 /** Pull the Key takeaways bullets into front matter (rendered as a highlight card), drop the section from the body. */
@@ -189,7 +171,8 @@ for (const pick of picks) {
   const item = candidates[pick.index];
   try {
     console.log(`[write] ${item.title}`);
-    const { takeaways, body } = splitTakeaways(await writeDeepDive(item, pick));
+    const draft = await writeDeepDive(item, pick);
+    const { takeaways, body } = splitTakeaways(draft.value);
     const slug = `${date}-${slugify(pick.title)}`;
     const frontmatter = [
       "---",
@@ -199,6 +182,7 @@ for (const pick of picks) {
       `category: ${yamlStr(pick.category)}`,
       `tags: [${pick.tags.map((t) => yamlStr(slugify(t))).join(", ")}]`,
       `importance: ${pick.importance}`,
+      `writer: ${yamlStr(draft.provider)}`,
       `source:`,
       `  name: ${yamlStr(item.source)}`,
       `  url: ${yamlStr(item.url)}`,
@@ -211,6 +195,7 @@ for (const pick of picks) {
     ].join("\n");
     await fs.writeFile(path.join(POSTS_DIR, `${slug}.md`), frontmatter + body + "\n");
     seen[item.url] = date;
+    console.log(`[write]   done via ${draft.provider}`);
     written.push({ slug, title: pick.title, summary: pick.summary, category: pick.category, importance: pick.importance, source: item.source, sourceUrl: item.url });
   } catch (err) {
     // One bad article shouldn't sink the whole digest.

@@ -1,8 +1,10 @@
 {
-  "$comment": "Pipeline tuning. lookbackHours: how far back to scan. maxPostsPerDay: deep-dives written per run. model: Claude Code model alias ('sonnet', 'opus', 'haiku') or full model id. Each post uses a share of your Claude plan's usage limits.",
+  "$comment": "Pipeline tuning. providers: tried in order, skipping any without credentials; if one fails the next takes over. claude.model: Claude Code alias ('sonnet', 'opus', 'haiku'). gemini.*: Gemini model ids ('-latest' aliases track the newest models).",
   "lookbackHours": 36,
   "maxCandidates": 90,
   "maxPostsPerDay": 4,
   "minImportance": 3,
-  "model": "sonnet"
+  "providers": ["claude", "gemini"],
+  "claude": { "model": "sonnet" },
+  "gemini": { "rankModel": "gemini-flash-latest", "writeModel": "gemini-pro-latest", "fallbackModel": "gemini-flash-latest" }
 }
