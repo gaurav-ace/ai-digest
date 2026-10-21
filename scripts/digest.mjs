@@ -32,7 +32,13 @@ function claude(prompt, args) {
     proc.on("close", (code) => {
       try {
         const res = JSON.parse(out);
-        if (res.is_error || res.subtype !== "success") return reject(new Error(`claude: ${res.subtype} ${res.result ?? ""}`.trim()));
+        if (res.is_error || res.subtype !== "success") {
+          const msg = String(res.result ?? res.subtype);
+          const hint = /401|authenticat|bearer/i.test(msg)
+            ? " (check the CLAUDE_CODE_OAUTH_TOKEN secret: regenerate with `claude setup-token` and paste it as a single line)"
+            : "";
+          return reject(new Error(`Claude call failed: ${msg}${hint}`));
+        }
         resolve(res);
       } catch {
         reject(new Error(`claude exited ${code}: ${out.slice(0, 500)}`));
