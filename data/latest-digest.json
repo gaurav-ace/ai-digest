@@ -2,13 +2,31 @@
   "date": "2026-10-21",
   "posts": [
     {
-      "slug": "2026-10-21-cloudflare-responds-to-eight-compromised-emudhra-intermediate-ca-certi",
-      "title": "Cloudflare responds to eight compromised eMudhra intermediate CA certificates",
-      "summary": "Eight eMudhra intermediate certificates were found to use weak keys, undermining trust in certs chaining to major root programs. Cloudflare is deploying mitigations and client updates, and explains the impact and what customers and developers should do.",
-      "category": "Security",
+      "slug": "2026-10-21-us-bank-moves-119-tb-from-oracle-exadata-to-rds-for-oracle-using-xtts",
+      "title": "U.S. Bank moves 119 TB from Oracle Exadata to RDS for Oracle using XTTS and DataSync",
+      "summary": "U.S. Bank migrated four Exadata databases totaling 119 TB to Amazon RDS for Oracle over a bandwidth-limited Direct Connect link. They automated a pipeline using Oracle Transportable Tablespaces (XTTS), AWS DataSync and EFS. The initial baseline copy finished in 7 days with zero data loss.",
+      "category": "Data Mobility",
       "importance": 4,
-      "source": "Cloudflare",
-      "sourceUrl": "https://blog.cloudflare.com/emudhra-certificate-compromise/"
+      "source": "AWS Database",
+      "sourceUrl": "https://aws.amazon.com/blogs/database/how-u-s-bank-migrated-119-tb-from-oracle-exadata-to-amazon-rds-for-oracle/"
+    },
+    {
+      "slug": "2026-10-21-metas-prometheus-uses-object-storage-for-massive-ai-training-jobs",
+      "title": "Meta's Prometheus uses object storage for massive AI training jobs",
+      "summary": "Blocks and Files reports that Meta's Prometheus AI cluster uses object storage to feed very large training jobs. The item points to an architectural shift away from traditional parallel file systems for training data and checkpoints. The candidate has little detail, so check the source.",
+      "category": "Data Storage",
+      "importance": 3,
+      "source": "Blocks and Files",
+      "sourceUrl": "https://www.blocksandfiles.com/ai-ml/2026/10/20/metas-prometheus-using-object-storage-for-massive-ai-training-jobs/5304117"
+    },
+    {
+      "slug": "2026-10-21-planetscale-neki-sharded-postgres-adds-read-replicas-50-metal-and-azur",
+      "title": "PlanetScale Neki sharded Postgres adds read replicas, $50 Metal and Azure",
+      "summary": "One month into platform preview, Neki (PlanetScale's sharded Postgres) has added read-only replicas, Metal instances from $50 per month, and Azure support. The post summarizes progress toward production readiness and how to evaluate Neki for your workload.",
+      "category": "Databases",
+      "importance": 3,
+      "source": "PlanetScale",
+      "sourceUrl": "https://planetscale.com/blog/neki-updates-and-preparing-for-production"
     }
   ]
 }

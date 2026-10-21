@@ -22,6 +22,8 @@
   --teal-fg: #0f766e;   --teal-bg: #e6f7f5;
   --amber-fg: #a16207;  --amber-bg: #fdf6e3;
   --rose-fg: #be123c;   --rose-bg: #fdecef;
+  --orange-fg: #c2410c; --orange-bg: #fff1e8;
+  --emerald-fg: #047857; --emerald-bg: #e7f8f0;
 
   --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
@@ -54,6 +56,8 @@
     --teal-fg: #5eead4;   --teal-bg: #0d2826;
     --amber-fg: #fcd34d;  --amber-bg: #2a2110;
     --rose-fg: #fda4af;   --rose-bg: #2f1519;
+    --orange-fg: #fdba74; --orange-bg: #2c1a0e;
+    --emerald-fg: #6ee7b7; --emerald-bg: #0c2720;
     color-scheme: dark;
   }
 }
@@ -77,6 +81,8 @@
   --teal-fg: #5eead4;   --teal-bg: #0d2826;
   --amber-fg: #fcd34d;  --amber-bg: #2a2110;
   --rose-fg: #fda4af;   --rose-bg: #2f1519;
+  --orange-fg: #fdba74; --orange-bg: #2c1a0e;
+  --emerald-fg: #6ee7b7; --emerald-bg: #0c2720;
   color-scheme: dark;
 }
 
@@ -212,6 +218,8 @@ img, svg { max-width: 100%; }
 .tone-teal   { --tone-fg: var(--teal-fg);   --tone-bg: var(--teal-bg); }
 .tone-amber  { --tone-fg: var(--amber-fg);  --tone-bg: var(--amber-bg); }
 .tone-rose   { --tone-fg: var(--rose-fg);   --tone-bg: var(--rose-bg); }
+.tone-orange { --tone-fg: var(--orange-fg); --tone-bg: var(--orange-bg); }
+.tone-emerald { --tone-fg: var(--emerald-fg); --tone-bg: var(--emerald-bg); }
 
 .card-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 .signal { display: inline-flex; gap: 3px; align-items: flex-end; height: 14px; }

@@ -21,6 +21,8 @@ const COLORS = {
   "System Design": 0x0ea5e9,
   Infrastructure: 0x14b8a6,
   Databases: 0xf59e0b,
+  "Data Storage": 0xf97316,
+  "Data Mobility": 0x10b981,
   Security: 0xef4444,
 };
 const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
@@ -29,7 +31,7 @@ const stars = (n) => "●".repeat(n) + "○".repeat(5 - n);
 const payload = {
   username: "The Signal",
   content: `## 📡 Daily digest · ${new Date(date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" })}\n` +
-    `${posts.length} new deep-dive${posts.length > 1 ? "s" : ""} on AI & system design${siteUrl ? ` · [open the site](${siteUrl}/)` : ""}`,
+    `${posts.length} new deep-dive${posts.length > 1 ? "s" : ""} on AI, system design & storage${siteUrl ? ` · [open the site](${siteUrl}/)` : ""}`,
   embeds: posts.slice(0, 10).map((p) => ({
     title: clip(p.title, 256),
     url: siteUrl ? `${siteUrl}/posts/${p.slug}/` : p.sourceUrl,

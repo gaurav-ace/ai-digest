@@ -1,7 +1,16 @@
 import { defineCollection, z } from "astro:content";
 import { glob } from "astro/loaders";
 
-export const CATEGORIES = ["AI Research", "AI Engineering", "System Design", "Infrastructure", "Databases", "Security"] as const;
+export const CATEGORIES = [
+  "AI Research",
+  "AI Engineering",
+  "System Design",
+  "Infrastructure",
+  "Databases",
+  "Data Storage",
+  "Data Mobility",
+  "Security",
+] as const;
 
 const posts = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/posts" }),

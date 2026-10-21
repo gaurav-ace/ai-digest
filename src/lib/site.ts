@@ -2,9 +2,9 @@ import { getCollection, type CollectionEntry } from "astro:content";
 
 export const SITE = {
   name: "The Signal",
-  tagline: "AI & system design, explained daily.",
+  tagline: "AI, systems & storage, explained daily.",
   description:
-    "A daily digest of the most important AI and system design news from trusted engineering sources, with clear deep-dive analysis.",
+    "A daily digest of the most important AI, system design and data storage news from trusted engineering sources, with clear deep-dive analysis.",
 };
 
 export type Post = CollectionEntry<"posts">;
@@ -23,6 +23,8 @@ export const CATEGORY_TONE: Record<string, string> = {
   "System Design": "sky",
   Infrastructure: "teal",
   Databases: "amber",
+  "Data Storage": "orange",
+  "Data Mobility": "emerald",
   Security: "rose",
 };
 

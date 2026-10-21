@@ -18,7 +18,7 @@ const cfg = await readJson(path.join(ROOT, "config/digest.json"), {});
 const maxArg = process.argv.indexOf("--max");
 if (maxArg !== -1) cfg.maxPostsPerDay = Number(process.argv[maxArg + 1]);
 const { sources } = await readJson(path.join(ROOT, "config/sources.json"), { sources: [] });
-const CATEGORIES = ["AI Research", "AI Engineering", "System Design", "Infrastructure", "Databases", "Security"];
+const CATEGORIES = ["AI Research", "AI Engineering", "System Design", "Infrastructure", "Databases", "Data Storage", "Data Mobility", "Security"];
 
 const llm = createLLM(cfg);
 // ---------------------------------------------------------------- 1. scan
@@ -60,7 +60,11 @@ const selectionSchema = {
         properties: {
           index: { type: "integer", description: "Index of the candidate in the provided list" },
           importance: { type: "integer", description: "1 (minor) to 5 (industry-shifting)" },
-          category: { type: "string", enum: CATEGORIES },
+          category: {
+            type: "string",
+            enum: CATEGORIES,
+            description: "Data Mobility = replication, migration, backup/recovery, DR, snapshots, cyber-recovery. Data Storage = storage systems and media (block/file/object, arrays, filesystems, SDS).",
+          },
           title: { type: "string", description: "Clear, specific headline for our post (not clickbait, <= 90 chars)" },
           summary: { type: "string", description: "2-3 sentence plain-English TL;DR a busy engineer can read in 15 seconds" },
           tags: { type: "array", items: { type: "string" }, description: "3-5 lowercase topic tags, e.g. 'caching', 'llm-inference'" },
@@ -72,15 +76,24 @@ const selectionSchema = {
 };
 
 const candidateList = candidates
-  .map((c, i) => `[${i}] (${c.source}, ${c.published.slice(0, 10)}) ${c.title}\n    ${c.snippet}`)
+  .map((c, i) => `[${i}] (${c.source}, ${c.kind}, ${c.published.slice(0, 10)}) ${c.title}\n    ${c.snippet}`)
   .join("\n");
 
+const focus = cfg.focus;
 const SELECT_SYSTEM =
-  "You are the editor of a daily digest for software engineers covering AI and system design. " +
+  "You are the editor of a daily digest for software engineers covering AI, system design and data storage. " +
   "You pick only items with real technical substance: new architectures, research results, production " +
-  "post-mortems, scaling lessons, notable model/tool releases with technical detail. Skip marketing, " +
+  "post-mortems, scaling lessons, notable model/tool/product releases with technical detail. Skip marketing, " +
   "event announcements, hiring posts, customer stories without engineering content, and near-duplicates " +
-  "(if two items cover the same news, keep the more primary source).";
+  "(if two items cover the same news, keep the more primary source). Vendor posts count when they explain how " +
+  "something works (e.g. a replication engine, snapshot or dedupe internals, migration tooling, a recovery " +
+  "architecture) or announce a significant capability with technical detail; skip vendor posts that are only positioning." +
+  (focus ? ` ${focus.about}` : "");
+
+const focusRule = focus
+  ? ` Reserve up to ${focus.slots} of the picks for ${focus.categories.join(" / ")} items (the reader's specialty) when worthy ones exist; ` +
+    `favour items about replication, migration, backup/recovery and DR. Do not pad these slots with weak items.`
+  : "";
 
 const selection = await llm.rank(
   {
@@ -89,7 +102,8 @@ const selection = await llm.rank(
     prompt:
       `Candidates published in the last ${cfg.lookbackHours} hours:\n\n${candidateList}\n\n` +
       `Pick up to ${cfg.maxPostsPerDay} items, most important first. Only include items with importance >= ${cfg.minImportance}. ` +
-      `Returning fewer (or zero) picks is fine on a slow day.`,
+      `Returning fewer (or zero) picks is fine on a slow day.` +
+      focusRule,
   },
   (out) => {
     if (!Array.isArray(out?.picks)) throw new Error("ranking output has no picks array");
@@ -125,7 +139,7 @@ The technical core. Explain mechanisms step by step and define jargon the first 
 Costs, limits, failure modes, what's unproven, and how it compares with established alternatives.
 
 ## What you can apply
-Concrete, practical lessons an engineer could use in their own systems or ML work.
+Concrete, practical lessons an engineer could use in their own systems or ML work. For storage, replication, migration, backup or DR topics, be specific about consistency and ordering guarantees, RPO/RTO, bandwidth and change-rate trade-offs, cutover and verification, and failure handling.
 
 ## Glossary
 A short bullet list of key terms with one-line definitions.

@@ -1,10 +1,27 @@
 {
-  "$comment": "Pipeline tuning. providers: tried in order, skipping any without credentials; if one fails the next takes over. claude.model: Claude Code alias ('sonnet', 'opus', 'haiku'). gemini.*: Gemini model ids ('-latest' aliases track the newest models).",
+  "$comment": "Pipeline tuning. providers: tried in order, skipping any without credentials; if one fails the next takes over. claude.model: Claude Code alias ('sonnet', 'opus', 'haiku'). gemini.*: Gemini model ids ('-latest' aliases track the newest models). focus: the reader's specialty; up to `slots` picks per day are reserved for these categories when worthy items exist.",
   "lookbackHours": 36,
-  "maxCandidates": 90,
-  "maxPostsPerDay": 4,
+  "maxCandidates": 140,
+  "maxPostsPerDay": 5,
   "minImportance": 3,
-  "providers": ["claude", "gemini"],
-  "claude": { "model": "sonnet" },
-  "gemini": { "rankModel": "gemini-flash-latest", "writeModel": "gemini-pro-latest", "fallbackModel": "gemini-flash-latest" }
+  "providers": [
+    "claude",
+    "gemini"
+  ],
+  "claude": {
+    "model": "sonnet"
+  },
+  "gemini": {
+    "rankModel": "gemini-flash-latest",
+    "writeModel": "gemini-pro-latest",
+    "fallbackModel": "gemini-flash-latest"
+  },
+  "focus": {
+    "categories": [
+      "Data Storage",
+      "Data Mobility"
+    ],
+    "slots": 2,
+    "about": "The reader is a software engineer in data mobility: replication (sync/async, snapshots, CDP), data migration, backup and recovery, disaster recovery, and the storage systems underneath (block, file, object)."
+  }
 }
