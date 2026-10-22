@@ -1,32 +1,41 @@
 {
-  "date": "2026-10-21",
+  "date": "2026-10-22",
   "posts": [
     {
-      "slug": "2026-10-21-us-bank-moves-119-tb-from-oracle-exadata-to-rds-for-oracle-using-xtts",
-      "title": "U.S. Bank moves 119 TB from Oracle Exadata to RDS for Oracle using XTTS and DataSync",
-      "summary": "U.S. Bank migrated four Exadata databases totaling 119 TB to Amazon RDS for Oracle over a bandwidth-limited Direct Connect link. They automated a pipeline using Oracle Transportable Tablespaces (XTTS), AWS DataSync and EFS. The initial baseline copy finished in 7 days with zero data loss.",
+      "slug": "2026-10-22-github-moves-9999999-of-repos-to-azure-with-per-reference-quorums",
+      "title": "GitHub moves 99.99999% of repos to Azure with per-reference quorums",
+      "summary": "GitHub copied nearly all repositories to Azure and describes how per-reference quorums will migrate the remainder. Object storage lets reads scale independently of write paths, targeting agent-scale Git traffic.",
       "category": "Data Mobility",
       "importance": 4,
-      "source": "AWS Database",
-      "sourceUrl": "https://aws.amazon.com/blogs/database/how-u-s-bank-migrated-119-tb-from-oracle-exadata-to-amazon-rds-for-oracle/"
+      "source": "GitHub Engineering",
+      "sourceUrl": "https://github.blog/engineering/architecture-optimization/the-bridge-to-agent-scale-git-infrastructure/"
     },
     {
-      "slug": "2026-10-21-metas-prometheus-uses-object-storage-for-massive-ai-training-jobs",
-      "title": "Meta's Prometheus uses object storage for massive AI training jobs",
-      "summary": "Blocks and Files reports that Meta's Prometheus AI cluster uses object storage to feed very large training jobs. The item points to an architectural shift away from traditional parallel file systems for training data and checkpoints. The candidate has little detail, so check the source.",
+      "slug": "2026-10-22-preserving-flexclone-space-efficiency-when-migrating-to-fsx-for-netapp",
+      "title": "Preserving FlexClone space efficiency when migrating to FSx for NetApp ONTAP",
+      "summary": "File-level tools like rsync, robocopy and DataSync expand clones into full copies, losing space savings. The post explains how to migrate between ONTAP file systems while keeping clone relationships intact, on-prem to FSx, between FSx systems, or across accounts.",
+      "category": "Data Mobility",
+      "importance": 3,
+      "source": "AWS Storage",
+      "sourceUrl": "https://aws.amazon.com/blogs/storage/preserve-flexclone-space-efficiency-when-migrating-to-amazon-fsx-for-netapp-ontap/"
+    },
+    {
+      "slug": "2026-10-22-php-security-release-fixes-two-rces-after-coordinated-disclosure-leak",
+      "title": "PHP security release fixes two RCEs after coordinated disclosure leak",
+      "summary": "The PHP Foundation released updates across the 8.x line fixing two remote code execution bugs. Exploits circulated after the CVE IDs leaked during coordinated disclosure. Upgrade immediately.",
+      "category": "Security",
+      "importance": 4,
+      "source": "Simon Willison",
+      "sourceUrl": "https://simonwillison.net/2026/Oct/21/php-security-release/"
+    },
+    {
+      "slug": "2026-10-22-re-encrypting-existing-s3-objects-in-place-with-updateobjectencryption",
+      "title": "Re-encrypting existing S3 objects in place with UpdateObjectEncryption",
+      "summary": "S3 Batch Operations with the new UpdateObjectEncryption API can switch billions of objects from SSE-S3 to SSE-KMS in place. There is no data movement, and Lifecycle policies keep working.",
       "category": "Data Storage",
       "importance": 3,
-      "source": "Blocks and Files",
-      "sourceUrl": "https://www.blocksandfiles.com/ai-ml/2026/10/20/metas-prometheus-using-object-storage-for-massive-ai-training-jobs/5304117"
-    },
-    {
-      "slug": "2026-10-21-planetscale-neki-sharded-postgres-adds-read-replicas-50-metal-and-azur",
-      "title": "PlanetScale Neki sharded Postgres adds read replicas, $50 Metal and Azure",
-      "summary": "One month into platform preview, Neki (PlanetScale's sharded Postgres) has added read-only replicas, Metal instances from $50 per month, and Azure support. The post summarizes progress toward production readiness and how to evaluate Neki for your workload.",
-      "category": "Databases",
-      "importance": 3,
-      "source": "PlanetScale",
-      "sourceUrl": "https://planetscale.com/blog/neki-updates-and-preparing-for-production"
+      "source": "AWS Storage",
+      "sourceUrl": "https://aws.amazon.com/blogs/storage/updating-encryption-on-existing-amazon-s3-objects-with-s3-batch-operations/"
     }
   ]
 }
