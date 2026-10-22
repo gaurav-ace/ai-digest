@@ -2,40 +2,13 @@
   "date": "2026-10-22",
   "posts": [
     {
-      "slug": "2026-10-22-github-moves-9999999-of-repos-to-azure-with-per-reference-quorums",
-      "title": "GitHub moves 99.99999% of repos to Azure with per-reference quorums",
-      "summary": "GitHub copied nearly all repositories to Azure and describes how per-reference quorums will migrate the remainder. Object storage lets reads scale independently of write paths, targeting agent-scale Git traffic.",
-      "category": "Data Mobility",
-      "importance": 4,
-      "source": "GitHub Engineering",
-      "sourceUrl": "https://github.blog/engineering/architecture-optimization/the-bridge-to-agent-scale-git-infrastructure/"
-    },
-    {
-      "slug": "2026-10-22-preserving-flexclone-space-efficiency-when-migrating-to-fsx-for-netapp",
-      "title": "Preserving FlexClone space efficiency when migrating to FSx for NetApp ONTAP",
-      "summary": "File-level tools like rsync, robocopy and DataSync expand clones into full copies, losing space savings. The post explains how to migrate between ONTAP file systems while keeping clone relationships intact, on-prem to FSx, between FSx systems, or across accounts.",
-      "category": "Data Mobility",
-      "importance": 3,
-      "source": "AWS Storage",
-      "sourceUrl": "https://aws.amazon.com/blogs/storage/preserve-flexclone-space-efficiency-when-migrating-to-amazon-fsx-for-netapp-ontap/"
-    },
-    {
-      "slug": "2026-10-22-php-security-release-fixes-two-rces-after-coordinated-disclosure-leak",
-      "title": "PHP security release fixes two RCEs after coordinated disclosure leak",
-      "summary": "The PHP Foundation released updates across the 8.x line fixing two remote code execution bugs. Exploits circulated after the CVE IDs leaked during coordinated disclosure. Upgrade immediately.",
-      "category": "Security",
-      "importance": 4,
-      "source": "Simon Willison",
-      "sourceUrl": "https://simonwillison.net/2026/Oct/21/php-security-release/"
-    },
-    {
-      "slug": "2026-10-22-re-encrypting-existing-s3-objects-in-place-with-updateobjectencryption",
-      "title": "Re-encrypting existing S3 objects in place with UpdateObjectEncryption",
-      "summary": "S3 Batch Operations with the new UpdateObjectEncryption API can switch billions of objects from SSE-S3 to SSE-KMS in place. There is no data movement, and Lifecycle policies keep working.",
+      "slug": "2026-10-22-vast-agent-sandbox-persists-cross-session-agent-state-in-its-storage-p",
+      "title": "VAST agent sandbox persists cross-session agent state in its storage platform",
+      "summary": "VAST introduced an agent sandbox that stores persistent agent state across sessions on its data platform. This lets agents resume context and memory without rebuilding it each run. Details come from a trade-press summary, so technical depth is limited.",
       "category": "Data Storage",
       "importance": 3,
-      "source": "AWS Storage",
-      "sourceUrl": "https://aws.amazon.com/blogs/storage/updating-encryption-on-existing-amazon-s3-objects-with-s3-batch-operations/"
+      "source": "Blocks and Files",
+      "sourceUrl": "https://www.blocksandfiles.com/ai-ml/2026/10/21/vast-agent-sandbox-stores-cross-session-persistent-agent-state/5304481"
     }
   ]
 }
