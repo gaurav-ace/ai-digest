@@ -15,34 +15,44 @@ if (posts.length === 0) {
   process.exit(0);
 }
 
-const COLORS = {
-  "AI Research": 0x8b5cf6,
-  "AI Engineering": 0x6366f1,
-  "System Design": 0x0ea5e9,
-  Infrastructure: 0x14b8a6,
-  Databases: 0xf59e0b,
-  "Data Storage": 0xf97316,
-  "Data Mobility": 0x10b981,
-  Security: 0xef4444,
+// One compact card for the whole day: a coloured marker per category, linked headline,
+// then category · source · importance. Most important stories first.
+const MARKERS = {
+  "AI Research": "🟪",
+  "AI Engineering": "🟦",
+  "System Design": "🔷",
+  Infrastructure: "🟫",
+  Databases: "🟨",
+  "Data Storage": "🟧",
+  "Data Mobility": "🟩",
+  Security: "🟥",
 };
 const clip = (s, n) => (s.length > n ? s.slice(0, n - 1).trimEnd() + "…" : s);
-const stars = (n) => "●".repeat(n) + "○".repeat(5 - n);
+const meter = (n) => "▰".repeat(n) + "▱".repeat(5 - n);
+// Keep link text from breaking markdown.
+const linkText = (s) => s.replace(/[\[\]]/g, "");
+
+const day = new Date(date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" });
+const items = [...posts].sort((a, b) => b.importance - a.importance).slice(0, 12);
+const lines = items.map((p) => {
+  const href = siteUrl ? `${siteUrl}/posts/${p.slug}/` : p.sourceUrl;
+  return (
+    `${MARKERS[p.category] ?? "⬜"} **[${linkText(clip(p.title, 95))}](${href})**\n` +
+    `${p.category} · ${p.source} · \`${meter(p.importance)}\``
+  );
+});
 
 const payload = {
   username: "The Signal",
-  content: `## 📡 Daily digest · ${new Date(date).toLocaleDateString("en-US", { weekday: "long", month: "short", day: "numeric", timeZone: "UTC" })}\n` +
-    `${posts.length} new deep-dive${posts.length > 1 ? "s" : ""} on AI, system design & storage${siteUrl ? ` · [open the site](${siteUrl}/)` : ""}`,
-  embeds: posts.slice(0, 10).map((p) => ({
-    title: clip(p.title, 256),
-    url: siteUrl ? `${siteUrl}/posts/${p.slug}/` : p.sourceUrl,
-    description: clip(p.summary, 400),
-    color: COLORS[p.category] ?? 0x64748b,
-    fields: [
-      { name: "Category", value: p.category, inline: true },
-      { name: "Importance", value: stars(p.importance), inline: true },
-      { name: "Source", value: `[${p.source}](${p.sourceUrl})`, inline: true },
-    ],
-  })),
+  embeds: [
+    {
+      title: `📡 Daily digest · ${day}`,
+      ...(siteUrl && { url: `${siteUrl}/` }),
+      description: lines.join("\n\n"),
+      color: 0x4f46e5,
+      footer: { text: `${posts.length} deep-dive${posts.length > 1 ? "s" : ""} · AI, systems & storage${siteUrl ? " · tap a headline to read" : ""}` },
+    },
+  ],
   allowed_mentions: { parse: [] },
 };
 
