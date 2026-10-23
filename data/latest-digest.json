@@ -1,14 +1,32 @@
 {
-  "date": "2026-10-22",
+  "date": "2026-10-23",
   "posts": [
     {
-      "slug": "2026-10-22-vast-agent-sandbox-persists-cross-session-agent-state-in-its-storage-p",
-      "title": "VAST agent sandbox persists cross-session agent state in its storage platform",
-      "summary": "VAST introduced an agent sandbox that stores persistent agent state across sessions on its data platform. This lets agents resume context and memory without rebuilding it each run. Details come from a trade-press summary, so technical depth is limited.",
+      "slug": "2026-10-23-netflix-titus-vm-level-isolation-on-a-multi-tenant-container-platform",
+      "title": "Netflix Titus: VM-level isolation on a multi-tenant container platform",
+      "summary": "Netflix describes adding single-tenant, VM-level isolation to Titus, its multi-tenant container platform. The post covers how stronger isolation is delivered for sensitive workloads without abandoning the shared container scheduling model.",
+      "category": "Infrastructure",
+      "importance": 3,
+      "source": "Netflix Tech Blog",
+      "sourceUrl": "https://netflixtechblog.com/single-tenant-titus-vm-level-isolation-on-a-multi-tenant-container-platform-6d8b1909d163?source=rss----2615bd06b42e---4"
+    },
+    {
+      "slug": "2026-10-23-validating-rds-sql-server-read-replicas-with-tablediff-after-replicati",
+      "title": "Validating RDS SQL Server read replicas with tablediff after replication lag",
+      "summary": "Shows how to use SQL Server's tablediff utility to compare an RDS read replica against its primary after a lag event. It classifies row-level mismatches and applies auditable T-SQL fix scripts on a promoted replica.",
+      "category": "Data Mobility",
+      "importance": 3,
+      "source": "AWS Database",
+      "sourceUrl": "https://aws.amazon.com/blogs/database/troubleshooting-data-mismatches-with-tablediff-on-amazon-rds-for-sql-server/"
+    },
+    {
+      "slug": "2026-10-23-vast-and-nvidia-agent-sandbox-stack-uses-zero-copy-clones-and-tool-cal",
+      "title": "VAST and NVIDIA agent sandbox stack uses zero-copy clones and tool-call logging",
+      "summary": "VAST's reference architecture runs NVIDIA NemoClaw agents in OpenShell sandboxes on the VAST AI OS. Zero-copy clones provide per-agent state that outlives the sandbox, and every tool call is logged.",
       "category": "Data Storage",
       "importance": 3,
-      "source": "Blocks and Files",
-      "sourceUrl": "https://www.blocksandfiles.com/ai-ml/2026/10/21/vast-agent-sandbox-stores-cross-session-persistent-agent-state/5304481"
+      "source": "StorageReview",
+      "sourceUrl": "https://www.storagereview.com/news/vast-agent-sandbox-foundation-stack-nvidia-openshell-nemoclaw-zero-copy-clones"
     }
   ]
 }
