@@ -3,7 +3,7 @@
 A static site that scans trusted AI and engineering sources every day, picks the stories that matter, and publishes clear deep-dive explainers. A summary of each day's posts goes to a Discord channel.
 
 ```
-cron-job.org at 06:45 IST → GitHub Actions (GitHub's own cron is a late fallback; Discord summary ~07:00 IST)
+GitHub Actions cron at 01:45 IST nominal (GitHub starts it ~5 h late, so the Discord summary arrives ~06:30–07:00 IST)
   └─ scripts/digest.mjs
        1. Scan    ~24 RSS feeds (config/sources.json), last 36h, skip already-seen URLs
        2. Rank    the AI picks up to 4 items with real technical substance (structured JSON)
@@ -24,21 +24,6 @@ cron-job.org at 06:45 IST → GitHub Actions (GitHub's own cron is a late fallba
    - At least one of the two is required. With both, Claude is used first and Gemini is the backup.
    - `DISCORD_WEBHOOK_URL`: in Discord, go to Channel settings → Integrations → Webhooks → New Webhook → Copy URL.
 4. **Run it once by hand:** Actions → *Daily digest* → **Run workflow**. After that it runs every day.
-
-### On-time daily trigger (recommended)
-
-GitHub's built-in scheduler is best-effort. It was observed starting this workflow about 5 hours late at 06:45 IST. An external scheduler starts it on time:
-
-1. **Create a GitHub token:** Settings → Developer settings → Personal access tokens → **Fine-grained tokens** → Generate. Set *Repository access* to **Only select repositories → ai-digest**, and *Permissions → Repository → Actions* to **Read and write**. Pick the longest expiry and set a reminder to renew it.
-2. **Create a job on [cron-job.org](https://cron-job.org)** (free):
-   - URL: `https://api.github.com/repos/gaurav-ace/ai-digest/actions/workflows/daily-digest.yml/dispatches`
-   - Schedule: every day at **06:45**, time zone **Asia/Kolkata**
-   - Advanced → Request method: **POST**
-   - Headers: `Authorization: Bearer <your token>`, `Accept: application/vnd.github+json`, `Content-Type: application/json`
-   - Request body: `{"ref":"main","inputs":{"scheduled":"true"}}`
-3. Click **Test run**. A `204` response means GitHub accepted it, and a run appears under Actions.
-
-If the external call ever fails, GitHub's own (late) cron still runs the digest the same day. The `gate` job makes sure only the first trigger of the day does any work.
 
 The site URL and base path are detected automatically for GitHub Pages. For a custom domain, add `public/CNAME`.
 
@@ -62,7 +47,7 @@ npm run digest         # real run with your logged-in Claude Code (add `-- --max
 | Categories | `CATEGORIES` in both `scripts/digest.mjs` and `src/content.config.ts` |
 | Site name and tagline | `src/lib/site.ts` |
 | Colours and typography | tokens at the top of `src/styles/global.css` |
-| Schedule | `cron` in `.github/workflows/daily-digest.yml` |
+| Schedule | `cron` in `.github/workflows/daily-digest.yml` (UTC; nominal times are set ~5 h early to absorb GitHub's delay) |
 
 The three `sample-*` posts in `src/content/posts/` show the format. Delete them once real posts arrive.
 

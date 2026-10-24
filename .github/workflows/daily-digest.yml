@@ -1,19 +1,14 @@
 name: Daily digest
 
 on:
-  # Primary trigger: an external scheduler (cron-job.org) calls the workflow_dispatch API at
-  # 06:45 IST with inputs.scheduled=true; see README. GitHub's own cron below is best-effort
-  # (observed ~5 h late at this hour) and only acts as a fallback; the `gate` job makes any
-  # trigger after the first one of the day a no-op.
+  # GitHub starts scheduled runs late. In Oct 2026 a 06:45 IST cron started ~4h50m late. So the
+  # nominal times are ~5 h before the target window: with today's delays the Discord summary
+  # lands around 06:30–07:00 IST. If GitHub gets faster it can arrive as early as ~02:00 IST
+  # (accepted). The `gate` job lets only the first trigger per IST day do any work.
   schedule:
-    - cron: "15 1 * * *" # 06:45 IST nominal (fallback)
-    - cron: "40 2 * * *" # 08:10 IST nominal (fallback)
-  workflow_dispatch:
-    inputs:
-      scheduled:
-        description: "Treat as the daily scheduled run (skip if today's digest already exists)"
-        type: boolean
-        default: false
+    - cron: "15 20 * * *" # 01:45 IST nominal (main)
+    - cron: "40 21 * * *" # 03:10 IST nominal (backup, if the main trigger is dropped)
+  workflow_dispatch: # "Run workflow" button: always runs
   push:
     branches: [main] # redeploy on manual edits (no generation)
 
@@ -39,8 +34,8 @@ jobs:
       - id: check
         run: |
           last=$(node -p 'try { require("./data/latest-digest.json").date } catch { "" }')
-          today=$(date -u +%F)
-          if { [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.scheduled }}" = "true" ]; } && [ "$last" = "$today" ]; then
+          today=$(TZ=Asia/Kolkata date +%F) # same IST day as scripts/lib.mjs todayISO()
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$last" = "$today" ]; then
             echo "Today's digest ($today) already done; skipping this trigger."
             echo "run=false" >> "$GITHUB_OUTPUT"
           else
@@ -84,7 +79,7 @@ jobs:
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else
-            git commit -m "digest: $(date -u +%F)"
+            git commit -m "digest: $(TZ=Asia/Kolkata date +%F)"
             git push
           fi
 

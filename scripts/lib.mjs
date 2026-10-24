@@ -59,4 +59,6 @@ export const stripHtml = (s) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").
 export const slugify = (s) =>
   s.toLowerCase().normalize("NFKD").replace(/[^\w\s-]/g, "").trim().replace(/[\s_-]+/g, "-").slice(0, 70).replace(/-+$/, "");
 
-export const todayISO = () => new Date().toISOString().slice(0, 10);
+// The digest's "day" is the reader's day (IST): runs start around 01:45 IST, when the UTC date is still yesterday.
+export const DIGEST_TZ = "Asia/Kolkata";
+export const todayISO = () => new Date().toLocaleDateString("en-CA", { timeZone: DIGEST_TZ }); // YYYY-MM-DD
