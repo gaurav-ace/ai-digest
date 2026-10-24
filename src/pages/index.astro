@@ -5,48 +5,73 @@ import { getPosts, groupByDay, formatDate, url } from "../lib/site";
 import { CATEGORIES } from "../content.config";
 
 const posts = await getPosts();
-const days = groupByDay(posts).slice(0, 10);
-const latest = days[0]?.[0];
+const days = groupByDay(posts).slice(0, 8);
+const [latest, ...earlier] = days;
 const usedCategories = CATEGORIES.filter((c) => posts.some((p) => p.data.category === c));
-const dayLabel = (k: string, i: number) =>
-  i === 0 ? `Latest · ${formatDate(new Date(k), { weekday: "long", month: "long", day: "numeric" })}` : formatDate(new Date(k), { weekday: "long", month: "long", day: "numeric" });
+const countIn = (c: string) => posts.filter((p) => p.data.category === c).length;
+const long = (k: string) => formatDate(new Date(k), { weekday: "long", month: "long", day: "numeric" });
 ---
 <Base>
-  <div class="container">
-    <section class="hero">
-      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>
-        {latest ? `Updated ${formatDate(new Date(latest), { month: "short", day: "numeric" })}` : "Daily digest"}
-      </span>
-      <h1>AI, systems &amp; storage,<br /><span class="grad">explained daily.</span></h1>
-      <p>Every morning we scan trusted engineering blogs and AI labs, pick what actually matters, and break it down into clear, practical deep-dives.</p>
-    </section>
-
-    {usedCategories.length > 1 && (
-      <div class="filters" role="toolbar" aria-label="Filter by category">
-        <button class="chip" type="button" aria-pressed="true" data-filter="all">All</button>
-        {usedCategories.map((c) => <button class="chip" type="button" aria-pressed="false" data-filter={c}>{c}</button>)}
-      </div>
-    )}
-
-    {days.length === 0 && <div class="empty">No posts yet. The first digest will appear after the next daily run.</div>}
-
-    {days.map(([key, items], i) => (
-      <section class="day" data-day>
-        <div class="day-head">
-          <h2>{dayLabel(key, i)}</h2><span class="rule" aria-hidden="true"></span>
-          <span class="count">{items.length} {items.length === 1 ? "story" : "stories"}</span>
-        </div>
-        <div class="grid">
-          {items.map((p, j) => <PostCard post={p} featured={i === 0 && j === 0} />)}
-        </div>
+  <div class="container home">
+    <!-- On wide screens this column becomes a sticky sidebar; on smaller screens it sits above the feed. -->
+    <aside class="home-side">
+      <section class="hero">
+        <span class="eyebrow"><span class="dot" aria-hidden="true"></span>
+          {latest ? `Updated ${formatDate(new Date(latest[0]), { month: "short", day: "numeric" })}` : "Daily digest"}
+        </span>
+        <h1>AI, systems &amp; storage,<br /><span class="grad">explained daily.</span></h1>
+        <p>Every morning we scan trusted engineering blogs, AI labs and storage vendors, pick what actually matters, and break it down into clear, practical deep-dives.</p>
       </section>
-    ))}
 
-    <div class="empty" id="filter-empty" hidden>No recent stories in this category. Try the <a href={url("/archive/")}>archive</a>.</div>
+      {usedCategories.length > 1 && (
+        <div class="filters" role="toolbar" aria-label="Filter by category">
+          <button class="chip" type="button" aria-pressed="true" data-filter="all">All <span class="n">{posts.length}</span></button>
+          {usedCategories.map((c) => (
+            <button class="chip" type="button" aria-pressed="false" data-filter={c}>{c} <span class="n">{countIn(c)}</span></button>
+          ))}
+        </div>
+      )}
+    </aside>
 
-    {posts.length > 0 && (
-      <div class="more"><a class="btn" href={url("/archive/")}>Browse the full archive →</a></div>
-    )}
+    <div class="home-main">
+      {!latest && <div class="empty">No posts yet. The first digest will appear after the next daily run.</div>}
+
+      {latest && (
+        <section class="day" data-day>
+          <div class="day-head">
+            <h2>Latest · {long(latest[0])}</h2><span class="rule" aria-hidden="true"></span>
+            <span class="count">{latest[1].length} {latest[1].length === 1 ? "story" : "stories"}</span>
+          </div>
+          <div class="grid latest-grid">
+            {latest[1].map((p, j) => <PostCard post={p} featured={j === 0} />)}
+          </div>
+        </section>
+      )}
+
+      {earlier.length > 0 && (
+        <section class="earlier">
+          <div class="day-head"><h2>Earlier</h2><span class="rule" aria-hidden="true"></span></div>
+          <!-- One column per day: fills wide screens without the ragged rows of per-day grids. -->
+          <div class="day-cols" style={`--cols: ${earlier.length}`}>
+            {earlier.map(([key, items]) => (
+              <section class="day-col" data-day>
+                <header class="day-col-head">
+                  <span class="wd">{formatDate(new Date(key), { weekday: "long" })}</span>
+                  <span class="dt">{formatDate(new Date(key), { month: "short", day: "numeric" })} · {items.length} {items.length === 1 ? "story" : "stories"}</span>
+                </header>
+                <div class="stack">{items.map((p) => <PostCard post={p} compact />)}</div>
+              </section>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <div class="empty" id="filter-empty" hidden>No recent stories in this category. Try the <a href={url("/archive/")}>archive</a>.</div>
+
+      {posts.length > 0 && (
+        <div class="more"><a class="btn" href={url("/archive/")}>Browse the full archive →</a></div>
+      )}
+    </div>
   </div>
 </Base>
 
@@ -65,6 +90,7 @@ const dayLabel = (k: string, i: number) =>
       day.hidden = visible === 0;
       if (visible) any = true;
     });
+    document.querySelector<HTMLElement>(".earlier")?.toggleAttribute("hidden", !document.querySelector(".day-col:not([hidden])"));
     document.getElementById("filter-empty")!.hidden = any;
   };
   chips.forEach((c) => c.addEventListener("click", () => apply(c.dataset.filter!)));

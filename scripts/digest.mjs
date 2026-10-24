@@ -119,7 +119,7 @@ console.log(`[rank] selected ${picks.length}: ${picks.map((p) => p.index).join("
 // ---------------------------------------------------------------- 3. deep-dive per pick
 const WRITER_SYSTEM = `You write deep-dive explainers for an engineering digest site. Readers are working software engineers, from mid-level to staff, who want to understand quickly and deeply.
 
-First read the original article in full: it is either included below or you fetch it with your web tool (if it links to a paper or key companion post that is essential, you may fetch that too). Base every factual claim on what you read; if the source is thin, say so instead of inventing detail. Never fabricate numbers, quotes or benchmarks.
+First read the original article in full: it is either included below or you fetch it with your web tool (if it links to a paper or key companion post that is essential, you may fetch that too). Base every factual claim on what you read; if the source is thin, say so instead of inventing detail. Never fabricate numbers, quotes or benchmarks. If you cannot get the article's actual content at all (blocked, paywalled, empty page), output exactly \`SKIP: <short reason>\` and nothing else: no post is better than a post about a title.
 
 Then write the post body in GitHub-flavored Markdown using exactly these sections, in order:
 
@@ -156,9 +156,13 @@ async function writeDeepDive(item, pick) {
         `Published: ${item.published}\nEditor's angle: ${pick.why}\nFeed snippet: ${item.snippet}`,
     },
     (md) => {
+      // Output problems are per-article: they try the next provider without disabling this one.
+      const outputError = (msg) => Object.assign(new Error(msg), { output: true });
+      const skip = md.trim().match(/^SKIP:\s*(.*)/);
+      if (skip) throw outputError(`source unreadable: ${skip[1].slice(0, 200)}`);
       // Drop any preamble before the first section; reject output that ignored the structure.
       const start = md.indexOf("## Key takeaways");
-      if (start === -1) throw new Error("writer output missing '## Key takeaways' section");
+      if (start === -1) throw outputError("writer output missing '## Key takeaways' section");
       return md.slice(start).trim();
     },
   );

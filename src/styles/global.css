@@ -30,7 +30,7 @@
   --radius: 14px;
   --radius-sm: 9px;
   --gutter: 16px;
-  --maxw: 1120px;
+  --maxw: 1280px;
   --readw: 720px;
   color-scheme: light;
 }
@@ -107,6 +107,7 @@ img, svg { max-width: 100%; }
 
 .container { width: 100%; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gutter); }
 @media (min-width: 768px) { :root { --gutter: 28px; } }
+@media (min-width: 1600px) { :root { --maxw: 2200px; --gutter: 40px; } }
 
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
@@ -178,9 +179,8 @@ img, svg { max-width: 100%; }
 .day-head .rule { flex: 1; height: 1px; background: var(--border); }
 .day-head .count { font-size: 13px; color: var(--text-3); }
 
-.grid { display: grid; gap: 14px; grid-template-columns: 1fr; }
-@media (min-width: 720px) { .grid { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
-@media (min-width: 1040px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+.grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fill, minmax(min(300px, 100%), 1fr)); }
+@media (min-width: 720px) { .grid { gap: 18px; } }
 
 .card {
   position: relative; display: flex; flex-direction: column; gap: 10px;
@@ -358,3 +358,80 @@ img, svg { max-width: 100%; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; scroll-behavior: auto !important; } }
 
 .takeaways code, .featured-side code { font-family: var(--font-mono); font-size: 0.86em; background: var(--bg-elev); border: 1px solid var(--border); padding: 0.08em 0.35em; border-radius: 5px; }
+
+/* ============================================================ wide screens & day columns */
+.chip .n { font-size: 12px; opacity: 0.6; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+/* featured card: full row by default, two columns of the fluid grid on wide screens */
+@media (min-width: 1400px) {
+  .card.featured { grid-column: span 2; padding: 24px; gap: 22px; }
+  .card.featured .featured-side { padding-left: 22px; }
+}
+.featured-side ul { list-style: none; padding-left: 0; }
+.featured-side li { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.featured-side li::before { content: "→ "; color: var(--accent); font-weight: 600; }
+
+/* earlier days: one column per day */
+.earlier { margin-top: 44px; }
+.earlier > .day-head { margin-bottom: 16px; }
+.latest-grid { grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr)); }
+/* auto-fit lets the day columns share the full width; --cols caps each at ~560px when there are only a few days */
+.day-cols { display: grid; gap: 18px; align-items: start; grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr)); max-width: calc(var(--cols, 8) * 560px); }
+.day-col-head { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 0 2px 10px; margin-bottom: 10px; border-bottom: 2px solid var(--border); }
+.day-col-head .wd { font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+.day-col-head .dt { font-size: 12.5px; color: var(--text-3); white-space: nowrap; }
+.stack { display: grid; gap: 10px; }
+.card.compact { padding: 14px 15px; gap: 7px; }
+.card.compact h3 { font-size: 15.5px; line-height: 1.35; }
+.card.compact p { font-size: 14px; -webkit-line-clamp: 2; }
+.card.compact .meta { font-size: 12.5px; padding-top: 2px; }
+.card.compact .badge { font-size: 11.5px; padding: 2px 8px; }
+
+/* home: sticky sidebar + wide feed */
+@media (min-width: 1600px) {
+  .home { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 56px; align-items: start; }
+  .home-side { position: sticky; top: 60px; padding-bottom: 24px; }
+  .home-side .hero { padding-top: 40px; }
+  .home-side .hero h1 { font-size: 36px; }
+  .home-side .hero p { font-size: 16px; }
+  .home-side .filters { flex-direction: column; overflow: visible; margin: 8px 0 0; padding: 0; gap: 4px; }
+  .home-side .chip { display: flex; justify-content: space-between; align-items: center; text-align: left; border-color: transparent; background: transparent; border-radius: 10px; padding: 8px 12px; }
+  .home-side .chip:hover { background: var(--bg-sunken); }
+  .home-side .chip[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent); border-color: transparent; font-weight: 600; }
+  .home-main { padding-top: 40px; min-width: 0; }
+  .home-main > .day:first-child { margin-top: 0; }
+}
+
+/* post page: same-day rail on the left, TOC on the right */
+.rail { display: none; }
+@media (min-width: 1400px) {
+  .article-wrap.has-rail { grid-template-columns: 240px minmax(0, var(--readw)) 240px; }
+  .rail { display: block; position: sticky; top: 92px; align-self: start; }
+  .rail h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); margin: 0 0 10px; }
+  .rail ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+  .rail a { display: grid; gap: 6px; padding: 12px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-elev); }
+  .rail a:hover { border-color: var(--border-strong); box-shadow: var(--shadow-md); }
+  .rail .t { font-weight: 600; font-size: 14px; line-height: 1.35; }
+  .rail .s { font-size: 12.5px; color: var(--text-3); }
+}
+@media (min-width: 2200px) {
+  :root { --readw: 860px; }
+  .article-wrap.has-rail { grid-template-columns: 320px minmax(0, var(--readw)) 300px !important; }
+  .prose { font-size: 19px !important; }
+}
+@media (min-width: 1800px) {
+  :root { --readw: 800px; }
+  .article-wrap, .article-wrap.has-rail { gap: 64px; }
+  .article-wrap.has-rail { grid-template-columns: 280px minmax(0, var(--readw)) 260px; }
+  .prose { font-size: 18.5px; }
+  .article-head .lede { font-size: 20.5px; }
+}
+
+/* archive: two columns of entries on wide screens */
+.page.wide { max-width: none; }
+@media (min-width: 1100px) {
+  .page.wide .archive-list { display: grid; grid-template-columns: 1fr 1fr; column-gap: 40px; }
+}
+@media (min-width: 1800px) {
+  .page.wide .archive-list { grid-template-columns: 1fr 1fr 1fr; }
+}

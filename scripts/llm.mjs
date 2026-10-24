@@ -177,7 +177,7 @@ export function createLLM(cfg) {
         return { value: check(await all[name][task](args)), provider: all[name].label };
       } catch (err) {
         console.warn(`[llm] ${all[name].label} ${task} failed: ${err.message}`);
-        failed.add(name);
+        if (!err.output) failed.add(name); // auth/limits/outages persist; a bad answer for one article doesn't
         lastErr = err;
       }
     }

@@ -4,12 +4,13 @@ import { url, readingMinutes, inlineMd } from "../lib/site";
 import CategoryBadge from "./CategoryBadge.astro";
 import Signal from "./Signal.astro";
 
-interface Props { post: Post; featured?: boolean }
-const { post, featured = false } = Astro.props;
+// featured: large card for the day's top story. compact: dense card for the earlier-days columns.
+interface Props { post: Post; featured?: boolean; compact?: boolean }
+const { post, featured = false, compact = false } = Astro.props;
 const { title, summary, category, importance, source, takeaways } = post.data;
 const href = url(`/posts/${post.id}/`);
 ---
-<article class:list={["card", { featured }]} data-category={category}>
+<article class:list={["card", { featured, compact }]} data-category={category}>
   {featured ? (
     <>
       <div class="featured-main">

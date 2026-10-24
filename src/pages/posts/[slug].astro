@@ -3,17 +3,22 @@ import { render } from "astro:content";
 import Base from "../../layouts/Base.astro";
 import CategoryBadge from "../../components/CategoryBadge.astro";
 import Signal from "../../components/Signal.astro";
-import { getPosts, url, formatDate, readingMinutes, slugify, inlineMd, type Post } from "../../lib/site";
+import { getPosts, url, formatDate, readingMinutes, slugify, inlineMd, dayKey, type Post } from "../../lib/site";
 
 export async function getStaticPaths() {
   const posts = await getPosts();
   return posts.map((post, i) => ({
     params: { slug: post.id },
-    props: { post, newer: posts[i - 1], older: posts[i + 1] },
+    props: {
+      post,
+      newer: posts[i - 1],
+      older: posts[i + 1],
+      sameDay: posts.filter((p) => p.id !== post.id && dayKey(p.data.date) === dayKey(post.data.date)),
+    },
   }));
 }
 
-const { post, newer, older } = Astro.props as { post: Post; newer?: Post; older?: Post };
+const { post, newer, older, sameDay } = Astro.props as { post: Post; newer?: Post; older?: Post; sameDay: Post[] };
 const { Content, headings } = await render(post);
 const d = post.data;
 const toc = headings.filter((h) => h.depth === 2);
@@ -21,7 +26,21 @@ const toc = headings.filter((h) => h.depth === 2);
 <Base title={d.title} description={d.summary} type="article">
   <div class="progress" aria-hidden="true"></div>
   <div class="container">
-    <div class="article-wrap">
+    <div class:list={["article-wrap", { "has-rail": sameDay.length > 0 }]}>
+      {sameDay.length > 0 && (
+        <aside class="rail" aria-label="More from this day">
+          <h2>Also on {formatDate(d.date, { month: "short", day: "numeric" })}</h2>
+          <ul>
+            {sameDay.map((p) => (
+              <li><a href={url(`/posts/${p.id}/`)}>
+                <CategoryBadge category={p.data.category} />
+                <span class="t">{p.data.title}</span>
+                <span class="s">{p.data.source.name} · {readingMinutes(p.body)} min</span>
+              </a></li>
+            ))}
+          </ul>
+        </aside>
+      )}
       <article>
         <nav class="crumbs" aria-label="Breadcrumb">
           <a href={url("/")}>Today</a><span aria-hidden="true">/</span>
@@ -44,7 +63,7 @@ const toc = headings.filter((h) => h.depth === 2);
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
               Key takeaways
             </h2>
-            <ol>{d.takeaways.map((t) => <li set:html={inlineMd(t)} />)}</ol>
+            <ol>{d.takeaways.map((t) => <li><span set:html={inlineMd(t)} /></li>)}</ol>
           </section>
         )}
 
