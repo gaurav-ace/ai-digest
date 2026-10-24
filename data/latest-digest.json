@@ -1,32 +1,44 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-25",
   "posts": [
     {
-      "slug": "2026-10-23-netflix-titus-vm-level-isolation-on-a-multi-tenant-container-platform",
-      "title": "Netflix Titus: VM-level isolation on a multi-tenant container platform",
-      "summary": "Netflix describes adding single-tenant, VM-level isolation to Titus, its multi-tenant container platform. The post covers how stronger isolation is delivered for sensitive workloads without abandoning the shared container scheduling model.",
-      "category": "Infrastructure",
-      "importance": 3,
-      "source": "Netflix Tech Blog",
-      "sourceUrl": "https://netflixtechblog.com/single-tenant-titus-vm-level-isolation-on-a-multi-tenant-container-platform-6d8b1909d163?source=rss----2615bd06b42e---4"
+      "slug": "2026-10-25-how-openai-scaled-habitat-storage-for-chatgpt-with-multi-tenancy-cachi",
+      "title": "How OpenAI scaled Habitat storage for ChatGPT with multi-tenancy, caching and Cosmos DB",
+      "summary": "OpenAI describes part two of scaling Habitat, the online storage behind ChatGPT. It covers reliable multi-tenancy, a global caching layer, and Azure Cosmos DB, which together yield about 12x faster reads.",
+      "category": "Databases",
+      "importance": 4,
+      "source": "OpenAI",
+      "sourceUrl": "https://openai.com/index/scaling-storage-one-billion-users-part-two"
     },
     {
-      "slug": "2026-10-23-validating-rds-sql-server-read-replicas-with-tablediff-after-replicati",
-      "title": "Validating RDS SQL Server read replicas with tablediff after replication lag",
-      "summary": "Shows how to use SQL Server's tablediff utility to compare an RDS read replica against its primary after a lag event. It classifies row-level mismatches and applies auditable T-SQL fix scripts on a promoted replica.",
-      "category": "Data Mobility",
-      "importance": 3,
-      "source": "AWS Database",
-      "sourceUrl": "https://aws.amazon.com/blogs/database/troubleshooting-data-mismatches-with-tablediff-on-amazon-rds-for-sql-server/"
+      "slug": "2026-10-25-cloudflare-rebuilds-pingora-cache-to-coordinate-range-requests-halving",
+      "title": "Cloudflare rebuilds Pingora cache to coordinate range requests, halving R2 p99",
+      "summary": "Naive byte-range caching can waste gigabytes of origin bandwidth on small requests. Cloudflare reworked the Pingora cache so partial fetches are coordinated automatically. This cut R2 p99 latency in half.",
+      "category": "System Design",
+      "importance": 4,
+      "source": "Cloudflare",
+      "sourceUrl": "https://blog.cloudflare.com/origin-range-requests/"
     },
     {
-      "slug": "2026-10-23-vast-and-nvidia-agent-sandbox-stack-uses-zero-copy-clones-and-tool-cal",
-      "title": "VAST and NVIDIA agent sandbox stack uses zero-copy clones and tool-call logging",
-      "summary": "VAST's reference architecture runs NVIDIA NemoClaw agents in OpenShell sandboxes on the VAST AI OS. Zero-copy clones provide per-agent state that outlives the sandbox, and every tool call is logged.",
+      "slug": "2026-10-25-hpts-2026-notes-hardware-object-storage-failures-consensus-and-lakehou",
+      "title": "HPTS 2026 notes: hardware, object storage, failures, consensus and lakehouses",
+      "summary": "Murat Demirbas's notes on HPTS days 2 and 3 cover GPU and database hardware limits, object storage, failure handling, consensus and lakehouses. They are a condensed summary of talks from practitioners and researchers.",
       "category": "Data Storage",
       "importance": 3,
-      "source": "StorageReview",
-      "sourceUrl": "https://www.storagereview.com/news/vast-agent-sandbox-foundation-stack-nvidia-openshell-nemoclaw-zero-copy-clones"
+      "source": "Murat Demirbas (Metadata)",
+      "sourceUrl": "https://muratbuffalo.blogspot.com/2026/10/hpts-2026-day-2-and-day-3.html"
+    }
+  ],
+  "guides": [
+    {
+      "slug": "llm-inference-and-serving",
+      "title": "Inference and serving: sampling, KV cache and batching",
+      "track": "LLM Foundations"
+    },
+    {
+      "slug": "vector-search-and-retrieval",
+      "title": "Vector search and retrieval: ANN indexes, hybrid search and reranking",
+      "track": "RAG: Retrieval-Augmented Generation"
     }
   ]
 }
