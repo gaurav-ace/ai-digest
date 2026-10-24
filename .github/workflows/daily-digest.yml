@@ -1,14 +1,19 @@
 name: Daily digest
 
 on:
+  # Primary trigger: an external scheduler (cron-job.org) calls the workflow_dispatch API at
+  # 06:45 IST with inputs.scheduled=true; see README. GitHub's own cron below is best-effort
+  # (observed ~5 h late at this hour) and only acts as a fallback; the `gate` job makes any
+  # trigger after the first one of the day a no-op.
   schedule:
-    # 01:15 UTC = 06:45 IST. A run takes ~5–10 min, so the Discord summary lands around 7:00 IST.
-    # GitHub's scheduler is best-effort (runs can be late or silently dropped), so two backup
-    # triggers follow; the `gate` job makes them no-ops once today's digest has been produced.
-    - cron: "15 1 * * *" # 06:45 IST (main)
-    - cron: "50 1 * * *" # 07:20 IST (backup)
-    - cron: "40 2 * * *" # 08:10 IST (backup)
-  workflow_dispatch: # "Run workflow" button for manual runs
+    - cron: "15 1 * * *" # 06:45 IST nominal (fallback)
+    - cron: "40 2 * * *" # 08:10 IST nominal (fallback)
+  workflow_dispatch:
+    inputs:
+      scheduled:
+        description: "Treat as the daily scheduled run (skip if today's digest already exists)"
+        type: boolean
+        default: false
   push:
     branches: [main] # redeploy on manual edits (no generation)
 
@@ -35,8 +40,8 @@ jobs:
         run: |
           last=$(node -p 'try { require("./data/latest-digest.json").date } catch { "" }')
           today=$(date -u +%F)
-          if [ "${{ github.event_name }}" = "schedule" ] && [ "$last" = "$today" ]; then
-            echo "Today's digest ($today) already done; skipping this backup trigger."
+          if { [ "${{ github.event_name }}" = "schedule" ] || [ "${{ inputs.scheduled }}" = "true" ]; } && [ "$last" = "$today" ]; then
+            echo "Today's digest ($today) already done; skipping this trigger."
             echo "run=false" >> "$GITHUB_OUTPUT"
           else
             echo "run=true" >> "$GITHUB_OUTPUT"
@@ -46,6 +51,7 @@ jobs:
     needs: gate
     if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-latest
+    timeout-minutes: 45 # a stuck step must never block the day (GitHub's default is 6 h)
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -106,6 +112,7 @@ jobs:
   deploy:
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -120,6 +127,7 @@ jobs:
     needs: deploy
     if: github.event_name != 'push'
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4

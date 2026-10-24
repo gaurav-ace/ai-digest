@@ -26,7 +26,7 @@ const parser = new Parser({
 /** Fetch one feed; never throws — a dead feed shouldn't kill the daily run. */
 export async function fetchFeed(source) {
   try {
-    const feed = await parser.parseURL(source.url);
+    const feed = await withTimeout(parser.parseURL(source.url), 30_000, `feed timed out after 30s`);
     return {
       source,
       ok: true,
@@ -43,6 +43,15 @@ export async function fetchFeed(source) {
   } catch (err) {
     return { source, ok: false, error: String(err.message ?? err), items: [] };
   }
+}
+
+/** Reject if `promise` hasn't settled within `ms` — no network call may stall the daily run. */
+export function withTimeout(promise, ms, message) {
+  let timer;
+  return Promise.race([
+    promise,
+    new Promise((_, reject) => (timer = setTimeout(() => reject(new Error(message)), ms))),
+  ]).finally(() => clearTimeout(timer));
 }
 
 export const stripHtml = (s) => s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();

@@ -226,3 +226,4 @@ for (const [url, d] of Object.entries(seen)) if (d < keepAfter) delete seen[url]
 await writeJson(SEEN_FILE, seen);
 await writeJson(LATEST_FILE, { date, posts: written });
 console.log(`[done] wrote ${written.length} post(s)`);
+process.exit(0); // don't let lingering keep-alive sockets hold the CI job open

@@ -10,17 +10,34 @@ import { stripHtml } from "./lib.mjs";
 // ---------------------------------------------------------------- Claude (Claude Code CLI)
 // Runs on a Claude Pro/Max subscription: local `claude` login, or CLAUDE_CODE_OAUTH_TOKEN in CI.
 function claudeProvider({ model }) {
-  const call = (prompt, args) =>
+  const call = (prompt, args, timeoutMs) =>
     new Promise((resolve, reject) => {
       const proc = spawn(
         "claude",
         ["-p", "--model", model, "--output-format", "json", "--no-session-persistence", "--strict-mcp-config", ...args],
-        { stdio: ["pipe", "pipe", "inherit"] },
+        // Own process group, so a timeout can kill the CLI *and* anything it spawned
+        // (child processes would otherwise keep the stdout pipe open and the run hanging).
+        { stdio: ["pipe", "pipe", "inherit"], detached: true },
       );
+      // A stuck CLI (network stall, rate-limit backoff) must not hold the run hostage.
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        try {
+          process.kill(-proc.pid, "SIGKILL");
+        } catch {}
+        proc.stdout.destroy();
+        reject(new Error(`timed out after ${Math.round(timeoutMs / 60000)} min`));
+      }, timeoutMs);
       let out = "";
       proc.stdout.on("data", (d) => (out += d));
-      proc.on("error", reject); // e.g. CLI not installed
+      proc.on("error", (err) => {
+        clearTimeout(timer);
+        reject(err); // e.g. CLI not installed
+      });
       proc.on("close", (code) => {
+        clearTimeout(timer);
+        if (timedOut) return; // already rejected
         try {
           const res = JSON.parse(out);
           if (res.is_error || res.subtype !== "success") {
@@ -43,7 +60,7 @@ function claudeProvider({ model }) {
     // In CI the CLI only works with a token; locally it uses your `claude` login.
     available: () => !process.env.CI || Boolean(process.env.CLAUDE_CODE_OAUTH_TOKEN),
     async rank({ system, prompt, schema }) {
-      const res = await call(prompt, ["--system-prompt", system, "--tools", "", "--json-schema", JSON.stringify(schema)]);
+      const res = await call(prompt, ["--system-prompt", system, "--tools", "", "--json-schema", JSON.stringify(schema)], 5 * 60_000);
       if (!res.structured_output) throw new Error("no structured output returned");
       return res.structured_output;
     },
@@ -54,7 +71,7 @@ function claudeProvider({ model }) {
         "--allowedTools", "WebFetch",
         "--permission-mode", "dontAsk",
         "--max-turns", "10",
-      ]);
+      ], 12 * 60_000);
       return String(res.result ?? "");
     },
   };
@@ -71,7 +88,11 @@ function geminiProvider({ rankModel, writeModel, fallbackModel }) {
     let lastErr;
     for (const model of [...new Set(models.filter(Boolean))]) {
       try {
-        const res = await client().models.generateContent({ model, ...params });
+        const res = await client().models.generateContent({
+          model,
+          ...params,
+          config: { ...params.config, abortSignal: AbortSignal.timeout(8 * 60_000) },
+        });
         if (!res.text) throw new Error(`empty response (finish reason: ${res.candidates?.[0]?.finishReason ?? "unknown"})`);
         usedModel = model;
         return res.text;
