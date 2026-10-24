@@ -3,6 +3,7 @@ import { SITE, url } from "../lib/site";
 const path = Astro.url.pathname;
 const links = [
   { href: url("/"), label: "Today", match: (p: string) => p === url("/") },
+  { href: url("/learn/"), label: "Learn", match: (p: string) => p.startsWith(url("/learn")) },
   { href: url("/archive/"), label: "Archive", match: (p: string) => p.startsWith(url("/archive")) },
   { href: url("/about/"), label: "About", match: (p: string) => p.startsWith(url("/about")), cls: "hide-sm" },
 ];
@@ -17,7 +18,7 @@ const links = [
     </a>
     <nav class="nav" aria-label="Main">
       {links.map((l) => <a href={l.href} class={l.cls} aria-current={l.match(path) ? "page" : undefined}>{l.label}</a>)}
-      <a class="icon-btn" href={url("/rss.xml")} aria-label="RSS feed" title="RSS feed">
+      <a class="icon-btn hide-sm" href={url("/rss.xml")} aria-label="RSS feed" title="RSS feed">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 11a9 9 0 0 1 9 9M4 4a16 16 0 0 1 16 16"/><circle cx="5" cy="19" r="1.2" fill="currentColor"/></svg>
       </a>
       <button class="icon-btn theme-toggle" type="button" aria-label="Toggle dark mode" title="Toggle theme">

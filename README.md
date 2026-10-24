@@ -51,6 +51,16 @@ npm run digest         # real run with your logged-in Claude Code (add `-- --max
 
 The three `sample-*` posts in `src/content/posts/` show the format. Delete them once real posts arrive.
 
+## Learn section
+
+`/learn` holds evergreen lessons organised into tracks (LLM Foundations, RAG, Agents & Harness Engineering, AI Infrastructure & Data).
+
+- **Curriculum:** `config/curriculum.json` lists each track's lessons with a title, summary, level and a brief of what to cover. Lessons not yet written show as "Coming soon".
+- **Writing lessons:** `npm run guide` writes the next 2 unwritten lessons (round-robin across tracks). Use `-- --max 4` for more, or `-- --slug what-is-rag` to rewrite one. The writer can search the web, so further-reading links are checked.
+- **Automatic:** the daily workflow runs `guide.mjs --weekly`, which writes 2 lessons every Sunday (IST) until the curriculum is complete. New lessons are announced in that day's Discord card.
+- **Progress:** "Mark as complete" is stored in the reader's browser (localStorage). There are no accounts.
+- **Adding topics:** append lessons or whole tracks to `config/curriculum.json`; they're picked up automatically.
+
 ## AI providers
 
 Set in `config/digest.json` → `"providers": ["claude", "gemini"]`. They are tried in order, and any provider without credentials is skipped. If a provider fails during a run (expired token, usage limit, outage), the rest of that run uses the next one. Each post records which model wrote it.

@@ -1,0 +1,90 @@
+---
+// Reading progress bar, active table-of-contents highlighting and Mermaid diagrams for long-form pages.
+---
+<div class="progress" aria-hidden="true"></div>
+
+<script>
+  // Reading progress + active TOC section
+  const bar = document.querySelector<HTMLElement>(".progress");
+  const onScroll = () => {
+    const h = document.documentElement;
+    const p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
+    if (bar) bar.style.transform = `scaleX(${p})`;
+  };
+  addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  const links = new Map([...document.querySelectorAll<HTMLAnchorElement>("[data-toc]")].map((a) => [a.dataset.toc, a]));
+  if (links.size) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => a.classList.remove("active"));
+          links.get(e.target.id)?.classList.add("active");
+        }
+      },
+      { rootMargin: "-80px 0px -70% 0px" },
+    );
+    document.querySelectorAll(".prose h2[id]").forEach((h) => io.observe(h));
+  }
+
+  // Mermaid diagrams: loaded only on pages that contain them.
+  const blocks = [...document.querySelectorAll<HTMLElement>('.prose pre[data-language="mermaid"], .prose pre > code.language-mermaid')]
+    .map((el) => (el.tagName === "PRE" ? el : el.parentElement!) as HTMLElement);
+  if (blocks.length) {
+    const sources = blocks.map((pre) => pre.textContent ?? "");
+    const holders = blocks.map((pre) => {
+      const fig = document.createElement("figure");
+      fig.className = "diagram";
+      fig.innerHTML = '<span class="diagram-label">Diagram</span><div></div>';
+      pre.replaceWith(fig);
+      return fig.lastElementChild as HTMLElement;
+    });
+    const draw = async () => {
+      // @ts-ignore — remote ESM module
+      const { default: mermaid } = await import("https://cdn.jsdelivr.net/npm/mermaid@11.4.1/dist/mermaid.esm.min.mjs");
+      // Theme diagrams from the page's own CSS tokens so they match light/dark mode.
+      const css = getComputedStyle(document.documentElement);
+      const v = (name: string) => css.getPropertyValue(name).trim();
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        fontFamily: "Inter, system-ui, sans-serif",
+        themeVariables: {
+          darkMode: document.documentElement.dataset.theme === "dark",
+          background: v("--bg-elev"),
+          primaryColor: v("--accent-soft"),
+          primaryBorderColor: v("--accent"),
+          primaryTextColor: v("--text"),
+          secondaryColor: v("--bg-sunken"),
+          tertiaryColor: v("--bg-sunken"),
+          lineColor: v("--text-3"),
+          textColor: v("--text"),
+          actorBkg: v("--accent-soft"),
+          actorBorder: v("--accent"),
+          actorTextColor: v("--text"),
+          signalColor: v("--text-2"),
+          signalTextColor: v("--text"),
+          noteBkgColor: v("--bg-sunken"),
+          noteTextColor: v("--text"),
+        },
+      });
+      for (const [i, src] of sources.entries()) {
+        try {
+          const { svg } = await mermaid.render(`mmd-${i}-${Date.now()}`, src);
+          holders[i].innerHTML = svg;
+          // Keep natural size (readable on phones); the .diagram card scrolls horizontally if needed.
+          const el = holders[i].querySelector("svg");
+          const w = el && parseFloat(el.style.maxWidth);
+          if (el && w) Object.assign(el.style, { width: `${w}px`, maxWidth: "none" });
+        } catch {
+          holders[i].innerHTML = `<pre style="text-align:left">${src.replace(/</g, "&lt;")}</pre>`;
+        }
+      }
+    };
+    draw();
+    document.addEventListener("themechange", draw);
+  }
+</script>

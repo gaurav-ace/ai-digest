@@ -10,7 +10,8 @@
     "digest": "node scripts/digest.mjs",
     "digest:dry": "node scripts/digest.mjs --dry-run",
     "feeds:check": "node scripts/check-feeds.mjs",
-    "notify": "node scripts/notify-discord.mjs"
+    "notify": "node scripts/notify-discord.mjs",
+    "guide": "node scripts/guide.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",

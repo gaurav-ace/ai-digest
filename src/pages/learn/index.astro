@@ -1,0 +1,90 @@
+---
+import Base from "../../layouts/Base.astro";
+import { url, readingMinutes } from "../../lib/site";
+import { getTracks, LEVEL_TONE } from "../../lib/learn";
+
+const tracks = await getTracks();
+const total = tracks.reduce((n, t) => n + t.items.length, 0);
+const available = tracks.reduce((n, t) => n + t.items.filter((i) => i.guide).length, 0);
+---
+<Base title="Learn" description="Structured lessons on AI concepts for engineers: LLM foundations, RAG, agents and harness engineering, and AI infrastructure.">
+  <div class="container">
+    <section class="hero learn-hero">
+      <span class="eyebrow"><span class="dot" aria-hidden="true"></span>Learn</span>
+      <h1>AI concepts,<br /><span class="grad">from first principles.</span></h1>
+      <p>Structured tracks that take you from how LLMs work to building reliable agents and the infrastructure underneath. Each lesson has diagrams, a worked example and a quick self-check.</p>
+      <div class="learn-progress" data-total={available} hidden>
+        <div class="bar"><span></span></div>
+        <span class="label"></span>
+      </div>
+      <p class="learn-count">{available} of {total} lessons published · new lessons every Sunday</p>
+    </section>
+
+    <div class="tracks">
+      {tracks.map((t, ti) => {
+        const firstSlug = t.items.find((i) => i.guide)?.lesson.slug;
+        return (
+          <section class="track" data-track={t.id}>
+            <header class="track-head">
+              <span class="track-n">Track {ti + 1}</span>
+              <h2>{t.title}</h2>
+              <p>{t.description}</p>
+              <div class="track-bar" aria-hidden="true"><span></span></div>
+            </header>
+            <ol class="lessons">
+              {t.items.map(({ lesson, n, guide }) => (
+                <li class:list={["lesson", { soon: !guide }]} data-slug={lesson.slug}>
+                  <span class="num" aria-hidden="true">{n}</span>
+                  {guide ? (
+                    <a href={url(`/learn/${lesson.slug}/`)}>
+                      <span class="t">{lesson.title}</span>
+                      <span class="m"><span class={`lvl tone-${LEVEL_TONE[lesson.level]}`}>{lesson.level}</span>{readingMinutes(guide.body)} min</span>
+                    </a>
+                  ) : (
+                    <div>
+                      <span class="t">{lesson.title}</span>
+                      <span class="m"><span class={`lvl tone-${LEVEL_TONE[lesson.level]}`}>{lesson.level}</span>Coming soon</span>
+                    </div>
+                  )}
+                </li>
+              ))}
+            </ol>
+            {firstSlug && <a class="btn track-cta" href={url(`/learn/${firstSlug}/`)} data-start>Start track →</a>}
+          </section>
+        );
+      })}
+    </div>
+  </div>
+</Base>
+
+<script>
+  // Progress lives in this browser only (localStorage); the page works fine without it.
+  let done: string[] = [];
+  try { done = JSON.parse(localStorage.getItem("learn-done") ?? "[]"); } catch {}
+  const doneSet = new Set(done);
+
+  document.querySelectorAll<HTMLElement>(".track").forEach((track) => {
+    const items = [...track.querySelectorAll<HTMLElement>(".lesson:not(.soon)")];
+    const finished = items.filter((li) => doneSet.has(li.dataset.slug!));
+    finished.forEach((li) => li.classList.add("done"));
+    const bar = track.querySelector<HTMLElement>(".track-bar span");
+    const all = track.querySelectorAll(".lesson").length;
+    if (bar) bar.style.width = `${(finished.length / all) * 100}%`;
+    // "Continue" points at the first published lesson not yet completed.
+    const next = items.find((li) => !doneSet.has(li.dataset.slug!));
+    const cta = track.querySelector<HTMLAnchorElement>("[data-start]");
+    if (cta && finished.length) {
+      if (next) { cta.href = next.querySelector("a")!.href; cta.textContent = "Continue →"; }
+      else { cta.textContent = finished.length === all ? "Track complete ✓" : "All caught up ✓ · more lessons coming"; }
+    }
+  });
+
+  const wrap = document.querySelector<HTMLElement>(".learn-progress");
+  const total = Number(wrap?.dataset.total ?? 0);
+  const count = document.querySelectorAll(".lesson.done").length;
+  if (wrap && count) {
+    wrap.hidden = false;
+    wrap.querySelector<HTMLElement>(".bar span")!.style.width = `${(count / Math.max(1, total)) * 100}%`;
+    wrap.querySelector(".label")!.textContent = `You've completed ${count} of ${total} published lessons`;
+  }
+</script>

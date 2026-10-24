@@ -1,6 +1,7 @@
 // LLM providers for the digest. Each provider implements:
 //   rank({ system, prompt, schema }) -> parsed JSON object
-//   write({ system, prompt, url })   -> markdown string
+//   write({ system, prompt, url })   -> markdown string (news deep-dive from one source article)
+//   teach({ system, prompt })        -> markdown string (evergreen lesson; may search the web for references)
 // Providers are tried in the configured order; a provider that fails is skipped for the rest of
 // the run (auth errors, usage limits and outages tend to persist), so the next one takes over.
 import { spawn } from "node:child_process";
@@ -74,6 +75,16 @@ function claudeProvider({ model }) {
       ], 12 * 60_000);
       return String(res.result ?? "");
     },
+    async teach({ system, prompt }) {
+      const res = await call(prompt, [
+        "--system-prompt", system,
+        "--tools", "WebSearch,WebFetch",
+        "--allowedTools", "WebSearch,WebFetch",
+        "--permission-mode", "dontAsk",
+        "--max-turns", "20",
+      ], 15 * 60_000);
+      return String(res.result ?? "");
+    },
   };
 }
 
@@ -124,6 +135,13 @@ function geminiProvider({ rankModel, writeModel, fallbackModel }) {
           ? `${prompt}\n\nFull text of the original article (extracted from ${url}):\n<article>\n${article}\n</article>`
           : `${prompt}\n\nRead the original article at ${url} before writing.`,
         config: { systemInstruction: system, ...(article ? {} : { tools: [{ urlContext: {} }] }) },
+      });
+    },
+    async teach({ system, prompt }) {
+      // Google Search grounding lets Gemini check that further-reading links are real.
+      return generate([writeModel, fallbackModel], {
+        contents: prompt,
+        config: { systemInstruction: system, tools: [{ googleSearch: {} }] },
       });
     },
   };
@@ -188,5 +206,6 @@ export function createLLM(cfg) {
     providers: order.map((n) => all[n].label),
     rank: (args, check) => run("rank", args, check),
     write: (args, check) => run("write", args, check),
+    teach: (args, check) => run("teach", args, check),
   };
 }

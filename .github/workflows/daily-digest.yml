@@ -70,12 +70,19 @@ jobs:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }} # aistudio.google.com/apikey
         run: npm run digest
 
+      - name: Write new Learn lessons (Sundays)
+        if: github.event_name != 'push'
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: node scripts/guide.mjs --weekly
+
       - name: Commit new posts
         if: github.event_name != 'push'
         run: |
           git config user.name "digest-bot"
           git config user.email "digest-bot@users.noreply.github.com"
-          git add src/content/posts data
+          git add src/content/posts src/content/guides data
           if git diff --cached --quiet; then
             echo "No changes to commit"
           else

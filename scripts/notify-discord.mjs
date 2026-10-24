@@ -9,9 +9,9 @@ if (!webhook) {
   process.exit(0);
 }
 
-const { date, posts = [] } = await readJson(LATEST_FILE, {});
-if (posts.length === 0) {
-  console.log("[discord] no new posts today, skipping");
+const { date, posts = [], guides = [] } = await readJson(LATEST_FILE, {});
+if (posts.length === 0 && guides.length === 0) {
+  console.log("[discord] nothing new today, skipping");
   process.exit(0);
 }
 
@@ -48,9 +48,21 @@ const payload = {
     {
       title: `📡 Daily digest · ${day}`,
       ...(siteUrl && { url: `${siteUrl}/` }),
-      description: lines.join("\n\n"),
+      description: [
+        lines.join("\n\n"),
+        guides.length
+          ? `📚 **New in Learn**\n` +
+            guides.map((g) => `[${linkText(g.title)}](${siteUrl ? `${siteUrl}/learn/${g.slug}/` : ""}) · ${g.track}`).join("\n")
+          : "",
+      ].filter(Boolean).join("\n\n"),
       color: 0x4f46e5,
-      footer: { text: `${posts.length} deep-dive${posts.length > 1 ? "s" : ""} · AI, systems & storage${siteUrl ? " · tap a headline to read" : ""}` },
+      footer: {
+        text: [
+          posts.length ? `${posts.length} deep-dive${posts.length > 1 ? "s" : ""}` : "",
+          guides.length ? `${guides.length} new lesson${guides.length > 1 ? "s" : ""}` : "",
+          siteUrl ? "tap a headline to read" : "",
+        ].filter(Boolean).join(" · "),
+      },
     },
   ],
   allowed_mentions: { parse: [] },

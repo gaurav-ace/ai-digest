@@ -1,0 +1,193 @@
+{
+  "$comment": "Learning tracks for /learn. Lessons are written in order by scripts/guide.mjs (2 per week in CI, or `npm run guide`). 'covers' briefs the writer; 'tags' link lessons to related digest posts. Add lessons or tracks freely; unwritten ones show as 'coming soon'.",
+  "tracks": [
+    {
+      "id": "llm-foundations",
+      "title": "LLM Foundations",
+      "description": "What actually happens inside a large language model, from tokens to training to serving, explained for engineers.",
+      "lessons": [
+        {
+          "slug": "how-llms-work",
+          "title": "How LLMs work: tokens, embeddings and the transformer",
+          "summary": "Follow one prompt through a model: tokenization, embeddings, attention layers and next-token prediction.",
+          "level": "Beginner",
+          "tags": ["transformers", "attention", "llm-inference"],
+          "covers": "Tokenization (BPE) and why token counts matter; embeddings as vectors; self-attention intuitively (query/key/value) and multi-head attention; the decoder-only transformer stack; next-token prediction and the autoregressive loop; logits, softmax, temperature. Use one running example prompt."
+        },
+        {
+          "slug": "training-llms",
+          "title": "Training an LLM: pretraining, fine-tuning and preference tuning",
+          "summary": "How a model goes from random weights to a helpful assistant, and what each training stage contributes.",
+          "level": "Beginner",
+          "tags": ["training", "fine-tuning", "rlhf"],
+          "covers": "Pretraining objective and data scale; loss and gradient descent at a high level; supervised fine-tuning (instruction tuning); preference tuning (RLHF, DPO) and what it changes; LoRA and parameter-efficient fine-tuning; when you as an engineer should fine-tune versus prompt or use RAG."
+        },
+        {
+          "slug": "llm-inference-and-serving",
+          "title": "Inference and serving: sampling, KV cache and batching",
+          "summary": "Why generation is memory-bound, how the KV cache works, and the tricks serving systems use to go fast.",
+          "level": "Intermediate",
+          "tags": ["llm-inference", "latency", "kv-cache"],
+          "covers": "Prefill vs decode phases; why decode is memory-bandwidth bound; the KV cache and its memory cost (with a worked size calculation); sampling strategies; continuous batching and PagedAttention; quantization; speculative decoding; latency metrics (TTFT, tokens/sec) and cost per token."
+        },
+        {
+          "slug": "context-windows",
+          "title": "Context windows and long context: what fits and what works",
+          "summary": "What the context window really is, why long context is expensive, and where models lose track.",
+          "level": "Intermediate",
+          "tags": ["context", "long-context", "prompt-caching"],
+          "covers": "Context window as working memory; quadratic attention cost and efficient attention; position encodings (RoPE) and length extrapolation; 'lost in the middle' and needle-in-a-haystack tests; prompt caching and why prefix stability matters; long context vs RAG trade-offs."
+        },
+        {
+          "slug": "reasoning-models",
+          "title": "Reasoning models and test-time compute",
+          "summary": "How models that 'think before answering' work, and when extra thinking is worth the cost.",
+          "level": "Advanced",
+          "tags": ["reasoning", "test-time-compute"],
+          "covers": "Chain-of-thought prompting vs trained reasoning; test-time compute scaling; how reasoning models are trained (RL on verifiable rewards) at a high level; effort/thinking budgets; cost and latency trade-offs; tasks that benefit and tasks that don't."
+        }
+      ]
+    },
+    {
+      "id": "rag",
+      "title": "RAG: Retrieval-Augmented Generation",
+      "description": "Give models your own data: what RAG is, how each stage works, and how to make it accurate in production.",
+      "lessons": [
+        {
+          "slug": "what-is-rag",
+          "title": "What RAG is, and when to use it",
+          "summary": "The retrieve-then-generate pattern, the problems it solves, and how it compares with fine-tuning and long context.",
+          "level": "Beginner",
+          "tags": ["rag", "retrieval"],
+          "covers": "Why models hallucinate and lack private/fresh knowledge; the RAG pipeline end to end (ingest, index, retrieve, augment, generate) with a diagram; a minimal example; RAG vs fine-tuning vs long context decision table; citations and grounding."
+        },
+        {
+          "slug": "chunking-and-embeddings",
+          "title": "Chunking and embeddings: preparing your data",
+          "summary": "How documents become searchable vectors, and why chunking decisions make or break retrieval.",
+          "level": "Beginner",
+          "tags": ["rag", "embeddings", "chunking"],
+          "covers": "What embedding models do; cosine similarity; chunk size and overlap trade-offs; structure-aware chunking (headings, tables, code); metadata; contextual chunk enrichment; re-embedding costs when models change; document parsing pitfalls (PDFs, tables)."
+        },
+        {
+          "slug": "vector-search-and-retrieval",
+          "title": "Vector search and retrieval: ANN indexes, hybrid search and reranking",
+          "summary": "How vector databases find similar chunks fast, and how hybrid search and rerankers improve what you retrieve.",
+          "level": "Intermediate",
+          "tags": ["rag", "vector-database", "search"],
+          "covers": "Exact vs approximate nearest neighbour; HNSW and IVF intuitively with recall/latency/memory trade-offs; vector database vs vector index in an existing DB; BM25 keyword search; hybrid search and reciprocal rank fusion; cross-encoder rerankers; filtering by metadata; storage and memory footprint of indexes."
+        },
+        {
+          "slug": "evaluating-rag",
+          "title": "Evaluating and debugging RAG",
+          "summary": "How to measure whether your RAG system retrieves the right things and answers faithfully.",
+          "level": "Intermediate",
+          "tags": ["rag", "evaluation"],
+          "covers": "Separating retrieval quality from generation quality; retrieval metrics (recall@k, MRR); faithfulness and answer relevance; building a golden question set; LLM-as-judge and its biases; common failure modes and a debugging checklist; monitoring in production."
+        },
+        {
+          "slug": "advanced-rag",
+          "title": "Advanced RAG: query rewriting, GraphRAG and agentic retrieval",
+          "summary": "Techniques for the hard cases: vague questions, multi-hop reasoning and very large corpora.",
+          "level": "Advanced",
+          "tags": ["rag", "agents", "knowledge-graph"],
+          "covers": "Query rewriting and decomposition; HyDE; multi-hop retrieval; GraphRAG and knowledge graphs (what problem they solve, costs); agentic retrieval where the model decides what to search; caching; when advanced techniques are not worth it."
+        }
+      ]
+    },
+    {
+      "id": "agents-harness",
+      "title": "Agents & Harness Engineering",
+      "description": "Build systems where models use tools and act over many steps, and engineer the harness that makes them reliable.",
+      "lessons": [
+        {
+          "slug": "what-is-an-agent",
+          "title": "What an AI agent is: the tool-use loop",
+          "summary": "From a single model call to a loop that plans, calls tools and observes results.",
+          "level": "Beginner",
+          "tags": ["agents", "tool-use"],
+          "covers": "Function/tool calling mechanics (schema in, structured call out, result back); the agent loop with a sequence diagram; workflows vs agents and when to use which; a minimal agent in pseudocode; stopping conditions; cost and latency growth with steps."
+        },
+        {
+          "slug": "harness-engineering",
+          "title": "Harness engineering: everything around the model",
+          "summary": "The harness is the code, prompts, tools and guardrails that turn a model into a dependable system, and it often matters more than the model.",
+          "level": "Intermediate",
+          "tags": ["agents", "harness-engineering"],
+          "covers": "Define the harness (system prompt, tool set, context assembly, loop control, memory, permissions, retries, observability); examples of harnesses such as coding agents; why the same model performs very differently in different harnesses; design principles: small sharp tools, clear tool descriptions, explicit verification steps, human-in-the-loop checkpoints; failure modes the harness must handle."
+        },
+        {
+          "slug": "context-engineering",
+          "title": "Context engineering: deciding what the model sees",
+          "summary": "Managing the context window across long tasks: what to include, summarize, cache or leave out.",
+          "level": "Intermediate",
+          "tags": ["agents", "context", "prompt-caching"],
+          "covers": "Context as a scarce budget; structuring system prompt vs task vs retrieved data; just-in-time retrieval vs preloading; compaction and summarization of history; memory files and scratchpads; sub-agents to isolate context; prompt caching and prefix stability; context poisoning and distraction."
+        },
+        {
+          "slug": "tools-and-mcp",
+          "title": "Designing tools and the Model Context Protocol (MCP)",
+          "summary": "How to design tools models use well, and how MCP standardizes connecting models to tools and data.",
+          "level": "Intermediate",
+          "tags": ["agents", "tool-use", "mcp"],
+          "covers": "Tool design: names, descriptions, parameter schemas, error messages the model can act on, idempotency; granularity trade-offs; MCP architecture (hosts, clients, servers; tools, resources, prompts) with a diagram; security: least privilege, prompt injection through tool results, approval gates."
+        },
+        {
+          "slug": "evaluating-agents",
+          "title": "Evaluating agents and making them reliable",
+          "summary": "How to test systems that take many non-deterministic steps, and the patterns that make them production-ready.",
+          "level": "Advanced",
+          "tags": ["agents", "evaluation", "reliability"],
+          "covers": "Why agent evals differ from model evals; task-based evals with graders (code checks, LLM judges, human review); trajectory vs outcome evaluation; pass@k and variance; regression suites; observability and tracing; guardrails, budgets, timeouts and fallbacks; incremental rollout."
+        }
+      ]
+    },
+    {
+      "id": "ai-infra-data",
+      "title": "AI Infrastructure & Data",
+      "description": "The systems underneath AI, with a focus on storage and data movement: training clusters, checkpoints, datasets and serving.",
+      "lessons": [
+        {
+          "slug": "ai-training-infrastructure",
+          "title": "AI training infrastructure: GPUs, networking and parallelism",
+          "summary": "What a training cluster looks like and how work is split across thousands of GPUs.",
+          "level": "Intermediate",
+          "tags": ["infrastructure", "training", "gpu"],
+          "covers": "GPU memory and compute basics; data, tensor, pipeline parallelism and sharded optimizers (ZeRO/FSDP) intuitively; interconnects (NVLink, InfiniBand/RoCE) and why the network matters; failure rates at scale and why checkpointing is essential."
+        },
+        {
+          "slug": "storage-for-ai",
+          "title": "Storage for AI: datasets, checkpoints and data pipelines",
+          "summary": "The storage patterns AI workloads create, from feeding GPUs to writing multi-terabyte checkpoints.",
+          "level": "Intermediate",
+          "tags": ["data-storage", "infrastructure", "checkpoints"],
+          "covers": "I/O patterns of training (random small reads of datasets vs large sequential checkpoint writes); parallel file systems vs object storage vs tiered caches; checkpoint size math and write bandwidth needs; async and incremental checkpointing; data loaders and GPU starvation; dataset versioning; how vendors (parallel FS, object stores) position for AI."
+        },
+        {
+          "slug": "data-mobility-for-ai",
+          "title": "Data mobility for AI: moving, replicating and protecting AI data",
+          "summary": "Migration, replication and backup applied to AI: datasets, checkpoints, vector indexes and model artifacts.",
+          "level": "Advanced",
+          "tags": ["data-mobility", "replication", "backup"],
+          "covers": "Moving datasets to where GPUs are (cloud bursting, multi-region); replicating checkpoints for resilience and RPO/RTO for training jobs; backing up vector databases and embeddings (and when re-embedding is cheaper); model artifact registries and provenance; data gravity and egress costs; consistency concerns when copying live indexes."
+        },
+        {
+          "slug": "serving-at-scale",
+          "title": "Serving models at scale: from one GPU to a fleet",
+          "summary": "How production systems route, batch, cache and autoscale model inference.",
+          "level": "Advanced",
+          "tags": ["llm-inference", "infrastructure", "latency"],
+          "covers": "Model servers and continuous batching; prefill/decode disaggregation; KV cache offloading to CPU memory or storage; prompt/prefix caching across requests; routing and load balancing for LLMs; autoscaling and cold starts (model load times from storage); multi-model and LoRA serving; cost per token levers."
+        },
+        {
+          "slug": "vector-databases-in-production",
+          "title": "Vector databases in production: durability, scaling and operations",
+          "summary": "Running vector search like any other critical datastore: replication, sharding, backups and upgrades.",
+          "level": "Advanced",
+          "tags": ["vector-database", "databases", "replication"],
+          "covers": "Index build vs query paths; sharding and replication strategies; write-ahead logs and durability; consistency of freshly inserted vectors; backup/restore and snapshotting of indexes; reindexing and embedding-model migrations without downtime; memory vs disk-based indexes and cost."
+        }
+      ]
+    }
+  ]
+}

@@ -33,4 +33,22 @@ const posts = defineCollection({
   }),
 });
 
-export const collections = { posts };
+export const LEVELS = ["Beginner", "Intermediate", "Advanced"] as const;
+
+// Evergreen lessons for /learn; track/order come from config/curriculum.json.
+const guides = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/guides" }),
+  schema: z.object({
+    title: z.string(),
+    summary: z.string(),
+    track: z.string(),
+    order: z.number().int(),
+    level: z.enum(LEVELS),
+    tags: z.array(z.string()).default([]),
+    updated: z.coerce.date(),
+    writer: z.string().optional(),
+    keyIdeas: z.array(z.string()).default([]),
+  }),
+});
+
+export const collections = { posts, guides };

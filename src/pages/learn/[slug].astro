@@ -1,0 +1,138 @@
+---
+import { render } from "astro:content";
+import Base from "../../layouts/Base.astro";
+import ArticleEnhancements from "../../components/ArticleEnhancements.astro";
+import PostCard from "../../components/PostCard.astro";
+import { url, readingMinutes, inlineMd, formatDate, getPosts } from "../../lib/site";
+import { getTracks, LEVEL_TONE, type Guide } from "../../lib/learn";
+
+export async function getStaticPaths() {
+  const tracks = await getTracks();
+  const posts = await getPosts();
+  return tracks.flatMap((track) => {
+    const published = track.items.filter((i) => i.guide);
+    return published.map((item, i) => {
+      const tags = new Set(item.lesson.tags);
+      return {
+        params: { slug: item.lesson.slug },
+        props: {
+          guide: item.guide as Guide,
+          track,
+          n: item.n,
+          prev: published[i - 1],
+          next: published[i + 1],
+          // Recent digest posts on the same topics: theory meets this week's news.
+          related: posts.filter((p) => p.data.tags.some((t) => tags.has(t))).slice(0, 3),
+        },
+      };
+    });
+  });
+}
+
+const { guide, track, n, prev, next, related } = Astro.props;
+const { Content, headings } = await render(guide);
+const d = guide.data;
+const toc = headings.filter((h) => h.depth === 2);
+---
+<Base title={d.title} description={d.summary} type="article">
+  <ArticleEnhancements />
+  <div class="container">
+    <div class="article-wrap has-rail lesson-page">
+      <aside class="rail track-nav" aria-label={`${track.title} lessons`}>
+        <h2>{track.title}</h2>
+        <ol>
+          {track.items.map((item) => (
+            <li class:list={{ current: item.lesson.slug === guide.id, soon: !item.guide }} data-slug={item.lesson.slug}>
+              {item.guide
+                ? <a href={url(`/learn/${item.lesson.slug}/`)}><span class="num">{item.n}</span><span>{item.lesson.title}</span></a>
+                : <span class="na"><span class="num">{item.n}</span><span>{item.lesson.title}</span></span>}
+            </li>
+          ))}
+        </ol>
+      </aside>
+
+      <article>
+        <nav class="crumbs" aria-label="Breadcrumb">
+          <a href={url("/learn/")}>Learn</a><span aria-hidden="true">/</span><span>{track.title}</span>
+        </nav>
+        <header class="article-head">
+          <div class="card-top" style="justify-content:flex-start;gap:10px">
+            <span class={`badge tone-${LEVEL_TONE[d.level]}`}>{d.level}</span>
+            <span class="lesson-n">Lesson {n} of {track.items.length}</span>
+          </div>
+          <h1>{d.title}</h1>
+          <p class="lede">{d.summary}</p>
+          <div class="meta">
+            <span>{readingMinutes(guide.body)} min read</span>
+            <span class="sep" /><span>Updated {formatDate(d.updated)}</span>
+          </div>
+        </header>
+
+        {d.keyIdeas.length > 0 && (
+          <section class="takeaways" aria-labelledby="ki">
+            <h2 id="ki">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg>
+              Key ideas
+            </h2>
+            <ol>{d.keyIdeas.map((k) => <li><span set:html={inlineMd(k)} /></li>)}</ol>
+          </section>
+        )}
+
+        <div class="prose"><Content /></div>
+
+        <div class="complete-box">
+          <div>
+            <div class="label">Finished this lesson?</div>
+            <div class="hint">Progress is saved in this browser.</div>
+          </div>
+          <button class="btn primary" type="button" data-complete={guide.id}>Mark as complete</button>
+        </div>
+        <p class="note">Lesson written with AI assistance{d.writer ? ` (${d.writer})` : ""} and checked against its listed sources. Check the further reading for anything critical.</p>
+
+        <nav class="pager" aria-label="Lessons">
+          {prev ? <a href={url(`/learn/${prev.lesson.slug}/`)}><div class="dir">← Lesson {prev.n}</div><div class="t">{prev.lesson.title}</div></a> : <a href={url("/learn/")}><div class="dir">←</div><div class="t">All tracks</div></a>}
+          {next ? <a class="next" href={url(`/learn/${next.lesson.slug}/`)}><div class="dir">Lesson {next.n} →</div><div class="t">{next.lesson.title}</div></a> : <a class="next" href={url("/learn/")}><div class="dir">→</div><div class="t">Back to all tracks</div></a>}
+        </nav>
+
+        {related.length > 0 && (
+          <section class="related">
+            <h2>In the news</h2>
+            <div class="grid">{related.map((p) => <PostCard post={p} compact />)}</div>
+          </section>
+        )}
+      </article>
+
+      {toc.length > 0 && (
+        <aside class="toc" aria-label="On this page">
+          <h2>On this page</h2>
+          <ol>{toc.map((h) => <li><a href={`#${h.slug}`} data-toc={h.slug}>{h.text}</a></li>)}</ol>
+        </aside>
+      )}
+    </div>
+  </div>
+</Base>
+
+<script>
+  const KEY = "learn-done";
+  const read = (): string[] => { try { return JSON.parse(localStorage.getItem(KEY) ?? "[]"); } catch { return []; } };
+  const write = (v: string[]) => { try { localStorage.setItem(KEY, JSON.stringify(v)); } catch {} };
+
+  const btn = document.querySelector<HTMLButtonElement>("[data-complete]");
+  const slug = btn?.dataset.complete ?? "";
+  const paint = () => {
+    const done = new Set(read());
+    if (btn) {
+      const isDone = done.has(slug);
+      btn.textContent = isDone ? "Completed ✓" : "Mark as complete";
+      btn.classList.toggle("primary", !isDone);
+    }
+    document.querySelectorAll<HTMLElement>(".track-nav li[data-slug]").forEach((li) => li.classList.toggle("done", done.has(li.dataset.slug!)));
+  };
+  btn?.addEventListener("click", () => {
+    const done = new Set(read());
+    done.has(slug) ? done.delete(slug) : done.add(slug);
+    write([...done]);
+    paint();
+  });
+  paint();
+</script>
