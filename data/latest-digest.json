@@ -1,4 +1,41 @@
 {
-  "date": "2026-10-26",
-  "posts": []
+  "date": "2026-10-27",
+  "posts": [
+    {
+      "slug": "2026-10-27-cloudflare-sglang-bug-exposed-kv-cache-pages-across-requests-on-worker",
+      "title": "Cloudflare: SGLang bug exposed KV cache pages across requests on Workers AI GLM-5.3",
+      "summary": "A configuration mismatch in the GLM-5.3 deployment on Workers AI triggered an SGLang bug that exposed KV cache pages across requests. Cloudflare explains the root cause and how it remediated with SGLang.",
+      "category": "Security",
+      "importance": 4,
+      "source": "Cloudflare",
+      "sourceUrl": "https://blog.cloudflare.com/kv-cache-exposure-remediation/"
+    },
+    {
+      "slug": "2026-10-27-nyt-cuts-oracle-to-aurora-postgresql-migration-from-18-to-5-months-wit",
+      "title": "NYT cuts Oracle to Aurora PostgreSQL migration from 18 to 5 months with AI agents",
+      "summary": "The New York Times migrated its PLATO subscription revenue engine from Oracle to Aurora PostgreSQL. It used an agent-based approach on Bedrock together with AWS DMS to automate schema conversion and multi-language code remediation.",
+      "category": "Data Mobility",
+      "importance": 3,
+      "source": "AWS Database",
+      "sourceUrl": "https://aws.amazon.com/blogs/database/the-new-york-times-cut-oracle-migration-time-from-18-to-5-months/"
+    },
+    {
+      "slug": "2026-10-27-vestiaire-collective-near-zero-downtime-rds-mariadb-upgrades-with-blue",
+      "title": "Vestiaire Collective: near-zero downtime RDS MariaDB upgrades with Blue/Green",
+      "summary": "Vestiaire upgraded its RDS for MariaDB fleet across two major versions using RDS Blue/Green Deployments. Switchovers took 94 seconds and then 7 seconds during peak sales season.",
+      "category": "Data Mobility",
+      "importance": 3,
+      "source": "AWS Database",
+      "sourceUrl": "https://aws.amazon.com/blogs/database/how-vestiaire-collective-achieved-near-zero-downtime-rds-for-mariadb-upgrades-with-amazon-rds-blue-green-deployments/"
+    },
+    {
+      "slug": "2026-10-27-breaking-the-kv-cache-memory-wall-with-dynamo-and-liqid-cxl-shared-mem",
+      "title": "Breaking the KV cache memory wall with Dynamo and Liqid CXL shared memory",
+      "summary": "Describes offloading LLM KV cache to CXL-attached shared memory pools, using NVIDIA Dynamo with Liqid composable infrastructure. The aim is to relieve GPU memory limits for inference.",
+      "category": "Data Storage",
+      "importance": 3,
+      "source": "Blocks and Files",
+      "sourceUrl": "https://www.blocksandfiles.com/architecture/2026/10/26/breaking-the-kv-cache-memory-wall-using-dynamo-and-liqid-cxl-shared-memory/5305130"
+    }
+  ]
 }
