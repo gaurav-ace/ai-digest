@@ -1,41 +1,41 @@
 {
-  "date": "2026-10-27",
+  "date": "2026-10-28",
   "posts": [
     {
-      "slug": "2026-10-27-cloudflare-sglang-bug-exposed-kv-cache-pages-across-requests-on-worker",
-      "title": "Cloudflare: SGLang bug exposed KV cache pages across requests on Workers AI GLM-5.3",
-      "summary": "A configuration mismatch in the GLM-5.3 deployment on Workers AI triggered an SGLang bug that exposed KV cache pages across requests. Cloudflare explains the root cause and how it remediated with SGLang.",
-      "category": "Security",
+      "slug": "2026-10-28-memory-enforced-gpu-sharing-in-kubernetes-with-cuda-134",
+      "title": "Memory-enforced GPU sharing in Kubernetes with CUDA 13.4",
+      "summary": "NVIDIA describes GPU sharing in Kubernetes with enforced memory limits per workload. This lets fractional-GPU workloads share a device without MIG's hardware partitioning, and a runaway workload can't take memory from its neighbors.",
+      "category": "Infrastructure",
       "importance": 4,
-      "source": "Cloudflare",
-      "sourceUrl": "https://blog.cloudflare.com/kv-cache-exposure-remediation/"
+      "source": "NVIDIA Developer",
+      "sourceUrl": "https://developer.nvidia.com/blog/memory-enforced-gpu-sharing-in-kubernetes-with-nvidia-cuda-13-4/"
     },
     {
-      "slug": "2026-10-27-nyt-cuts-oracle-to-aurora-postgresql-migration-from-18-to-5-months-wit",
-      "title": "NYT cuts Oracle to Aurora PostgreSQL migration from 18 to 5 months with AI agents",
-      "summary": "The New York Times migrated its PLATO subscription revenue engine from Oracle to Aurora PostgreSQL. It used an agent-based approach on Bedrock together with AWS DMS to automate schema conversion and multi-language code remediation.",
+      "slug": "2026-10-28-three-ways-to-speed-up-moe-inference-on-nvidia-dgx-spark",
+      "title": "Three ways to speed up MoE inference on NVIDIA DGX Spark",
+      "summary": "Profiling Ling-3.0-flash at batch size 1 on DGX Spark shows decoding is memory-bound, because reading the weights dominates runtime. The post covers optimizations for the MoE computation and the other operations that stood out in the profile.",
+      "category": "AI Engineering",
+      "importance": 3,
+      "source": "NVIDIA Developer",
+      "sourceUrl": "https://developer.nvidia.com/blog/3-ways-to-boost-moe-inference-on-nvidia-dgx-spark/"
+    },
+    {
+      "slug": "2026-10-28-tla-verus-llm-agents-prove-temporal-properties-of-tla-specs",
+      "title": "TLA-Verus: LLM agents prove temporal properties of TLA+ specs",
+      "summary": "A NeurIPS'26 workshop paper translates TLA+ specs from GitHub into Verus. LLM agents then try to prove the safety and liveness properties. Murat Demirbas reviews the approach and its limits.",
+      "category": "System Design",
+      "importance": 3,
+      "source": "Murat Demirbas (Metadata)",
+      "sourceUrl": "https://muratbuffalo.blogspot.com/2026/10/tla-verus-llm-agents-prove-temporal.html"
+    },
+    {
+      "slug": "2026-10-28-dell-adds-quantum-safe-fc-encryption-to-powerstore-and-identity-recove",
+      "title": "Dell adds quantum-safe FC encryption to PowerStore and identity recovery to PowerProtect",
+      "summary": "The November PowerStore release adds quantum-safe encryption of Fibre Channel data in flight when paired with supported PowerEdge servers. PowerProtect gains identity-system recovery and hardening for AI factories.",
       "category": "Data Mobility",
       "importance": 3,
-      "source": "AWS Database",
-      "sourceUrl": "https://aws.amazon.com/blogs/database/the-new-york-times-cut-oracle-migration-time-from-18-to-5-months/"
-    },
-    {
-      "slug": "2026-10-27-vestiaire-collective-near-zero-downtime-rds-mariadb-upgrades-with-blue",
-      "title": "Vestiaire Collective: near-zero downtime RDS MariaDB upgrades with Blue/Green",
-      "summary": "Vestiaire upgraded its RDS for MariaDB fleet across two major versions using RDS Blue/Green Deployments. Switchovers took 94 seconds and then 7 seconds during peak sales season.",
-      "category": "Data Mobility",
-      "importance": 3,
-      "source": "AWS Database",
-      "sourceUrl": "https://aws.amazon.com/blogs/database/how-vestiaire-collective-achieved-near-zero-downtime-rds-for-mariadb-upgrades-with-amazon-rds-blue-green-deployments/"
-    },
-    {
-      "slug": "2026-10-27-breaking-the-kv-cache-memory-wall-with-dynamo-and-liqid-cxl-shared-mem",
-      "title": "Breaking the KV cache memory wall with Dynamo and Liqid CXL shared memory",
-      "summary": "Describes offloading LLM KV cache to CXL-attached shared memory pools, using NVIDIA Dynamo with Liqid composable infrastructure. The aim is to relieve GPU memory limits for inference.",
-      "category": "Data Storage",
-      "importance": 3,
-      "source": "Blocks and Files",
-      "sourceUrl": "https://www.blocksandfiles.com/architecture/2026/10/26/breaking-the-kv-cache-memory-wall-using-dynamo-and-liqid-cxl-shared-memory/5305130"
+      "source": "StorageReview",
+      "sourceUrl": "https://www.storagereview.com/news/dell-powerstore-quantum-safe-fibre-channel-encryption-november-powerprotect-identity-recovery-ai-factory"
     }
   ]
 }
