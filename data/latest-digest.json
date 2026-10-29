@@ -1,41 +1,32 @@
 {
-  "date": "2026-10-28",
+  "date": "2026-10-29",
   "posts": [
     {
-      "slug": "2026-10-28-memory-enforced-gpu-sharing-in-kubernetes-with-cuda-134",
-      "title": "Memory-enforced GPU sharing in Kubernetes with CUDA 13.4",
-      "summary": "NVIDIA describes GPU sharing in Kubernetes with enforced memory limits per workload. This lets fractional-GPU workloads share a device without MIG's hardware partitioning, and a runaway workload can't take memory from its neighbors.",
-      "category": "Infrastructure",
-      "importance": 4,
-      "source": "NVIDIA Developer",
-      "sourceUrl": "https://developer.nvidia.com/blog/memory-enforced-gpu-sharing-in-kubernetes-with-nvidia-cuda-13-4/"
-    },
-    {
-      "slug": "2026-10-28-three-ways-to-speed-up-moe-inference-on-nvidia-dgx-spark",
-      "title": "Three ways to speed up MoE inference on NVIDIA DGX Spark",
-      "summary": "Profiling Ling-3.0-flash at batch size 1 on DGX Spark shows decoding is memory-bound, because reading the weights dominates runtime. The post covers optimizations for the MoE computation and the other operations that stood out in the profile.",
-      "category": "AI Engineering",
-      "importance": 3,
-      "source": "NVIDIA Developer",
-      "sourceUrl": "https://developer.nvidia.com/blog/3-ways-to-boost-moe-inference-on-nvidia-dgx-spark/"
-    },
-    {
-      "slug": "2026-10-28-tla-verus-llm-agents-prove-temporal-properties-of-tla-specs",
-      "title": "TLA-Verus: LLM agents prove temporal properties of TLA+ specs",
-      "summary": "A NeurIPS'26 workshop paper translates TLA+ specs from GitHub into Verus. LLM agents then try to prove the safety and liveness properties. Murat Demirbas reviews the approach and its limits.",
+      "slug": "2026-10-29-meta-andromeda-model-system-co-design-for-gpu-ads-retrieval",
+      "title": "Meta Andromeda: model-system co-design for GPU ads retrieval",
+      "summary": "Meta describes the next generation of Andromeda, its ads retrieval engine. Model, system and GPU hardware are co-designed so every eligible ad is scored with near ranking-level model quality at retrieval scale.",
       "category": "System Design",
-      "importance": 3,
-      "source": "Murat Demirbas (Metadata)",
-      "sourceUrl": "https://muratbuffalo.blogspot.com/2026/10/tla-verus-llm-agents-prove-temporal.html"
+      "importance": 4,
+      "source": "Meta Engineering",
+      "sourceUrl": "https://engineering.fb.com/2026/10/28/ml-applications/meta-andromeda-next-gen-ads-retrieval-gpu-co-design/"
     },
     {
-      "slug": "2026-10-28-dell-adds-quantum-safe-fc-encryption-to-powerstore-and-identity-recove",
-      "title": "Dell adds quantum-safe FC encryption to PowerStore and identity recovery to PowerProtect",
-      "summary": "The November PowerStore release adds quantum-safe encryption of Fibre Channel data in flight when paired with supported PowerEdge servers. PowerProtect gains identity-system recovery and hardening for AI factories.",
+      "slug": "2026-10-29-ceph-v2120-umbrella-released-as-first-stable-release",
+      "title": "Ceph v21.2.0 'Umbrella' released as first stable release",
+      "summary": "Ceph Umbrella is the 21st stable release. Container images move to Rocky Linux 10, which requires x86-64-v3 CPUs, and cephadm needs Python 3.9 or newer. Check these requirements before upgrading.",
+      "category": "Data Storage",
+      "importance": 3,
+      "source": "Ceph",
+      "sourceUrl": "https://ceph.io/en/news/blog/2026/v21-2-0-umbrella-released/"
+    },
+    {
+      "slug": "2026-10-29-backup-vs-replication-rtorpo-and-when-to-use-both",
+      "title": "Backup vs. replication: RTO/RPO and when to use both",
+      "summary": "Veeam explains how backup and replication differ in recovery speed and recovery point. It also covers when to combine them to answer 'how fast can we be back, and back to what?' during an incident.",
       "category": "Data Mobility",
       "importance": 3,
-      "source": "StorageReview",
-      "sourceUrl": "https://www.storagereview.com/news/dell-powerstore-quantum-safe-fibre-channel-encryption-november-powerprotect-identity-recovery-ai-factory"
+      "source": "Veeam",
+      "sourceUrl": "https://www.veeam.com/blog/data-backup-and-recovery.html"
     }
   ]
 }
