@@ -1,41 +1,32 @@
 {
-  "date": "2026-10-30",
+  "date": "2026-10-31",
   "posts": [
     {
-      "slug": "2026-10-30-planetscale-neki-designing-a-planned-postgres-switchover-for-minimal-d",
-      "title": "PlanetScale Neki: designing a planned Postgres switchover for minimal disruption",
-      "summary": "PlanetScale describes how Neki shards promote a replica to primary for pod replacement, kernel upgrades, or cell moves. The post covers the design to minimize write unavailability during a planned switchover, as opposed to unplanned failover.",
-      "category": "Data Mobility",
+      "slug": "2026-10-31-emudhra-weak-keys-how-cloudflare-patched-and-what-exploitation-looks-l",
+      "title": "eMudhra weak keys: how Cloudflare patched and what exploitation looks like",
+      "summary": "Cloudflare details the discovery that eMudhra certificates used extremely weak keys (only four possible values), allowing connections using unpatched certificates to be broken. The post covers how Cloudflare patched quickly, evidence of attempted exploitation, and how much of the Internet remains exposed.",
+      "category": "Security",
       "importance": 4,
-      "source": "PlanetScale",
-      "sourceUrl": "https://planetscale.com/blog/designing-a-planned-switchover-for-minimum-disruption"
+      "source": "Cloudflare",
+      "sourceUrl": "https://blog.cloudflare.com/emudhra-patching/"
     },
     {
-      "slug": "2026-10-30-percona-operator-for-mysql-130-zero-data-loss-async-failover-and-encry",
-      "title": "Percona Operator for MySQL 1.3.0: zero-data-loss async failover and encrypted PITR",
-      "summary": "The release adds async cluster failover that avoids losing in-flight data. Point-in-time recovery now works when binary logs are encrypted at rest, and the operator auto-tunes MySQL from pod resources.",
-      "category": "Data Mobility",
+      "slug": "2026-10-31-pure-kva-retaining-evicted-kv-caches-in-host-memory-and-nfs-for-long-r",
+      "title": "Pure KVA: retaining evicted KV caches in host memory and NFS for long-running agents",
+      "summary": "Pure describes KVA, which keeps evicted KV caches in host memory and NFS-backed storage instead of recomputing them. Restoring cached state is faster than rebuilding, so more long-running agents stay responsive on the same GPU hardware.",
+      "category": "AI Engineering",
       "importance": 3,
-      "source": "Percona",
-      "sourceUrl": "https://www.percona.com/blog/percona-operator-for-mysql-1-3-0/"
+      "source": "Pure Storage (Everpure)",
+      "sourceUrl": "https://blog.everpuredata.com/perspectives/how-pure-kva-keeps-long-running-agents-fast/"
     },
     {
-      "slug": "2026-10-30-ibm-flashcore-module-now-detects-data-exfiltration-inside-the-drive",
-      "title": "IBM FlashCore Module now detects data exfiltration inside the drive",
-      "summary": "IBM FlashSystem 5600/7600/9600 arrays with fifth-generation FlashCore Modules learn each volume's normal read pattern. They flag anomalous reads and confirm a suspected event over a 30-minute window. IBM claims under 1% false positives, alongside the existing in-drive ransomware encryption detection.",
+      "slug": "2026-10-31-how-to-check-and-configure-nvidia-gpudirect-storage-for-your-platform",
+      "title": "How to check and configure NVIDIA GPUDirect Storage for your platform",
+      "summary": "NVIDIA walks through verifying and configuring GPUDirect Storage, which provides a direct data path between GPUs and storage targets. It covers checking platform support and tuning to raise bandwidth and cut latency and CPU use.",
       "category": "Data Storage",
       "importance": 3,
-      "source": "StorageReview",
-      "sourceUrl": "https://www.storagereview.com/news/ibm-flashsystem-data-exfiltration-detection-post-quantum-cryptography"
-    },
-    {
-      "slug": "2026-10-30-benchmarking-vector-search-across-six-database-engines-with-990k-embed",
-      "title": "Benchmarking vector search across six database engines with 990K embeddings",
-      "summary": "Percona loaded 990,000 1,536-dimension OpenAI embeddings into six databases and built HNSW indexes in each. It measured time to a queryable index, storage and memory, recall vs throughput, concurrency, and behavior when 10% of the corpus is rewritten.",
-      "category": "Databases",
-      "importance": 3,
-      "source": "Percona",
-      "sourceUrl": "https://www.percona.com/blog/benchmarking-vector-search-in-six-database-engines/"
+      "source": "NVIDIA Developer",
+      "sourceUrl": "https://developer.nvidia.com/blog/how-to-check-and-configure-nvidia-gpudirect-storage-for-your-platform/"
     }
   ]
 }
